@@ -242,7 +242,7 @@ impl Camera {
         "model_aliases" => {}
         "modes" => {} // ignore
         key => {
-          panic!("Unknown key: {}", key);
+          log::warn!("Unknown camera config key: {}", key);
         }
       }
     }
