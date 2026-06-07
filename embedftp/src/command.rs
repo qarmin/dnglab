@@ -125,13 +125,6 @@ impl Command {
   }
 }
 
-fn _to_uppercase(data: &mut [u8]) {
-  for byte in data {
-    if *byte >= b'a' && *byte <= b'z' {
-      *byte -= 32;
-    }
-  }
-}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TransferType {
