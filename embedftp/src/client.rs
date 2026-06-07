@@ -157,7 +157,6 @@ where
     }
     match cmd {
       Command::Auth => {
-        //warn!("Auth not implemented");
         self.send(Answer::new(ResultCode::CommandNotImplemented, "Not implemented")).await?
       }
       Command::Quit => self.quit().await?,
