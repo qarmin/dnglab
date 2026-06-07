@@ -210,9 +210,9 @@ fn new_makernote(file: &RawSource, moffset: u64) -> std::io::Result<HashMap<u32,
         let value = tiff::Value::Ascii(tiff::TiffAscii::new_from_raw(&v));
         entries.insert(tag, (byte_count, value));
       }
-      // Short values
+      // Short values (stored as Long for simplicity, actual type is u16)
       2 => {
-        entries.insert(tag, (byte_count, tiff::Value::Long(vec![data as u32])));
+        entries.insert(tag, (byte_count, tiff::Value::Short(vec![data as u16])));
       }
       // Integer values
       4 => {
