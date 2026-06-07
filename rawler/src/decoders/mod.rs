@@ -782,7 +782,7 @@ where
   let coltiles = (width - 1) / twidth + 1;
   let rowtiles = (height - 1) / tlength + 1;
   if coltiles * rowtiles != tiles_src.len() as usize {
-    return Err(format_args!("DNG: trying to decode {} tiles from {} offsets", coltiles * rowtiles, tiles_src.len()).into());
+    return Err(format_args!("DNG: trying to decode {} tiles from {} tile offsets", coltiles * rowtiles, tiles_src.len()).into());
   }
 
   let mut pixbuf = alloc_image_plain_typed!(T, decode_width * cpp, decode_height, dummy);
