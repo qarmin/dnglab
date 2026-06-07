@@ -159,7 +159,7 @@ where
       if let Some(first_key) = available_matrices.keys().next().cloned() {
         let first_matrix = available_matrices
           .remove_entry(&Illuminant::A)
-          .or_else(|| available_matrices.remove_entry(&Illuminant::A))
+          .or_else(|| available_matrices.remove_entry(&Illuminant::Tungsten))
           .or_else(|| available_matrices.remove_entry(&first_key))
           .expect("No matrix found");
         self
