@@ -163,8 +163,6 @@ impl<'a> NefDecoder<'a> {
     }
     .ok_or("File has not makernotes")?;
 
-    //makernote.dump::<ExifTag>(0).iter().for_each(|line| eprintln!("DUMP: {}", line));
-
     Ok(NefDecoder {
       tiff,
       rawloader,
@@ -687,7 +685,6 @@ impl<'a> NefDecoder<'a> {
     let inv_wb_r = (1024.0 / coeffs[0]) as i32;
     let inv_wb_b = (1024.0 / coeffs[2]) as i32;
 
-    //println!("Got invwb {} {}", inv_wb_r, inv_wb_b);
 
     let snef_curve = {
       let g: f32 = 2.4;

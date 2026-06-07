@@ -86,8 +86,6 @@ impl<'a> ArwDecoder<'a> {
     }
     .ok_or("File has not makernotes")?;
 
-    //makernote.dump::<ExifTag>(0).iter().for_each(|line| eprintln!("DUMP: {}", line));
-
     Ok(ArwDecoder {
       tiff,
       rawloader,
@@ -596,8 +594,6 @@ impl<'a> ArwDecoder<'a> {
       LEu32(tag, 0)
     };
     let priv_tiff = IFD::new(&mut file.reader(), priv_offset, 0, 0, Endian::Little, &[])?;
-
-    //priv_tiff.dump::<ExifTag>(0).iter().for_each(|line| println!("DUMPXX: {}", line));
 
     let sony_offset = fetch_tiff_tag!(priv_tiff, TiffCommonTag::SonyOffset).force_u32(0);
     let sony_length = fetch_tiff_tag!(priv_tiff, TiffCommonTag::SonyLength).force_usize(0);
