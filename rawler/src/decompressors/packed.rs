@@ -1149,41 +1149,6 @@ pub(crate) fn decompress_14le_unpacked(buf: &[u8], width: usize, height: usize, 
   )
 }
 
-/// Unpacks 14-bit pixel values stored in 16-bit big-endian words with a
-/// custom row stride.
-///
-/// Each pixel occupies a full 16-bit BE word with the upper 2 bits unused.
-/// The value is masked to 14 bits. Row offset is `stripsize` bytes.
-///
-/// ```text
-///  Byte 0    Byte 1          (one 16-bit BE word per pixel)
-/// [76543210][76543210]
-/// [00AAAAAA][AAAAAAAA]
-///  |---- P0 ----|
-///
-/// P0 = u16::from_be(B0:B1) & 0x3FFF
-/// ```
-#[multiversion(targets("x86_64+avx+avx2+fma", "x86+sse", "aarch64+neon"))]
-pub(crate) fn decompress_14le_unpacked_padded(buf: &[u8], width: usize, height: usize, stripsize: usize, dummy: bool) -> std::result::Result<PixU16, String> {
-  let need = height * stripsize;
-  if buf.len() < need {
-    return Err(format!("decompress_14le_unpacked_padded(): buffer too short ({} < {})", buf.len(), need));
-  }
-  decompress_lines_fn(
-    width,
-    height,
-    dummy,
-    &(|out: &mut [u16], row| {
-      let inb = &buf[(row * stripsize)..];
-
-      for (i, bytes) in (0..width).zip(inb.as_chunks::<2>().0) {
-        out[i] = u16::from_be_bytes(*bytes) & 0x3fff;
-      }
-      Ok(())
-    }),
-  )
-}
-
 /// Unpacks 14-bit pixel values stored in 16-bit big-endian words.
 ///
 /// Each pixel occupies a full 16-bit BE word with the upper 2 bits unused.
