@@ -44,8 +44,7 @@ impl<R: Read + Seek> ReadBox<&mut R> for MdhdBox {
       )
     };
     let _language_code = reader.read_u16::<BigEndian>()?;
-    //let language = language_string(language_code); // TODO
-    let language = String::from("FIXME");
+    let language = String::new();
 
     reader.seek(SeekFrom::Start(header.end_offset()))?;
 
