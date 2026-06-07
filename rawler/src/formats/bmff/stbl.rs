@@ -31,7 +31,7 @@ impl StblBox {
       // Index of sample inside chunk
       let chunk_sample_idx = (sample - desc.first_sample) % desc.samples_per_chunk;
       // Offset of chunk
-      let chunk_offset = co64.entries[chunk as usize - 1];
+      let chunk_offset = *co64.entries.get(chunk as usize - 1)?;
 
       // Offset of sample in chunk
       let mut sample_offset = 0;
