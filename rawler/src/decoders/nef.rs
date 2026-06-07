@@ -545,6 +545,9 @@ impl<'a> NefDecoder<'a> {
       a.div_ceil(b) // (a + b - 1) / b
     }
 
+    if height == 0 {
+      return Ok(None);
+    }
     let req_pixels = width * height;
     let req_input_bits = bps * req_pixels;
     let req_input_bytes = div_round_up(req_input_bits, 8);
