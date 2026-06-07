@@ -24,7 +24,7 @@ impl StszBox {
     if self.sample_size > 0 {
       self.sample_size
     } else {
-      self.sample_sizes[sample as usize - 1]
+      self.sample_sizes.get(sample as usize - 1).copied().unwrap_or(0)
     }
   }
 }
