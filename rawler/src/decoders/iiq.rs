@@ -749,7 +749,7 @@ impl<'a> IiqDecoder<'a> {
   fn blacklevel(&self) -> Result<u16> {
     match self.makernotes.get(&IiqTag::BlackLevel.into()) {
       Some(mode) => Ok(mode.1.force_u16(0)),
-      _ => Err(RawlerError::DecoderFailed("Unable to find lacklevel in IIQ makernotes".to_string())),
+      _ => Err(RawlerError::DecoderFailed("Unable to find blacklevel in IIQ makernotes".to_string())),
     }
   }
 
