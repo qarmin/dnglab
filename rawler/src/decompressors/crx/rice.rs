@@ -100,7 +100,7 @@ impl<'mdat> RiceDecoder<'mdat> {
       new_k += 1;
     }
     if value < ((1 << prev_k) >> 1) {
-      new_k -= 1;
+      new_k = new_k.saturating_sub(1);
     }
 
     if k_max > 0 { std::cmp::min(new_k, k_max) } else { new_k }
