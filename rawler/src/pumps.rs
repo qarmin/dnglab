@@ -97,7 +97,7 @@ impl<'a> BitPumpMSB32<'a> {
     }
   }
 
-  /// Refill internal bit buffer - Little-Endian
+  /// Refill internal bit buffer - MSB32 (32-bit LE words, MSB bit order within word)
   ///
   /// For fast refill, we can simply take a whole u32 value out.
   /// For slow refill, there may be 1, 2 or 3 bytes left in buffer. We need
