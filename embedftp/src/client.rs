@@ -125,7 +125,6 @@ where
           debug!("New Path: {:?}", self.cwd);
           let msg = format!("\"{}\" is the current directory.", self.cwd.to_str().unwrap_or(""));
           return self.send(Answer::new(ResultCode::RequestedFileActionOkay, &msg)).await;
-          //return Ok((self.send(Answer::new(ResultCode::Ok, "Okay."))).await?);
         }
         Command::Mkd(path) => return self.mkd(path).await,
         Command::Rmd(path) => return self.rmd(path).await,
