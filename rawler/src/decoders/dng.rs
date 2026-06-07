@@ -390,21 +390,6 @@ impl<'a> DngDecoder<'a> {
     None
   }
 
-  fn _get_masked_areas(&self, raw: &IFD) -> Vec<Rect> {
-    let mut areas = Vec::new();
-
-    if let Some(masked_area) = raw.get_entry(TiffCommonTag::MaskedAreas) {
-      for x in (0..masked_area.count() as usize).step_by(4) {
-        areas.push(Rect::new_with_points(
-          Point::new(masked_area.force_usize(x), masked_area.force_usize(x + 1)),
-          Point::new(masked_area.force_usize(x + 2), masked_area.force_usize(x + 3)),
-        ));
-      }
-    }
-
-    areas
-  }
-
   fn get_color_matrix(&self) -> Result<HashMap<Illuminant, FlatColorMatrix>> {
     let mut result = HashMap::new();
 
