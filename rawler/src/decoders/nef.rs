@@ -217,8 +217,8 @@ impl<'a> Decoder for NefDecoder<'a> {
     let src = if rows_per_strip == height {
       file.subview_padded(offset as u64, size as u64)?
     } else {
-      let full_size: u32 = match fetch_tiff_tag!(raw, TiffCommonTag::StripByteCounts) {
-        Value::Long(data) => data.iter().copied().sum(),
+      let full_size: u64 = match fetch_tiff_tag!(raw, TiffCommonTag::StripByteCounts) {
+        Value::Long(data) => data.iter().map(|&x| x as u64).sum(),
         _ => {
           return Err("StripByteCounts is not of type LONG".into());
         }
