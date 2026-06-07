@@ -100,5 +100,6 @@ enum ArriRawTag {
 }
 
 fn char_slice_to_string(buf: &[u8]) -> Option<String> {
-  Some(buf.iter().take_while(|&&c| c != 0).map(|&c| char::from(c)).collect())
+  let s: String = buf.iter().take_while(|&&c| c != 0).map(|&c| char::from(c)).collect();
+  if s.is_empty() { None } else { Some(s) }
 }
