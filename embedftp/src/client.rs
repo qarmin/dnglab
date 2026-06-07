@@ -471,7 +471,6 @@ where
       return Ok(());
     }
     self.active_data_port = None;
-    //let port = if let Some(port) = self.data_port { port } else { 0 };
     let port = 0; // auto configure port
     let mut addr = self.local_addr;
     addr.set_port(port);
@@ -515,7 +514,6 @@ where
   }
 
   async fn epsv(&mut self, proto: Option<String>) -> Result<()> {
-    //let port = if let Some(port) = self.data_port { port } else { 0 };
     let port = 0;
 
     if let Some(proto) = proto {
