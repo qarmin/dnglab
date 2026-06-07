@@ -902,4 +902,3 @@ pub enum Cr2MakernoteTag {
   RawBurstModeRoll = 0x403f,
 }
 
-//const CR2_MODEL_40D: u32 = 0x80000190;
