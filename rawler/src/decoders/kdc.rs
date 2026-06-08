@@ -65,7 +65,11 @@ impl<'a> Decoder for KdcDecoder<'a> {
     if self.camera.clean_model == "DC120" {
       let width = 848;
       let height = 976;
-      let raw = self.tiff.find_ifds_with_tag(TiffCommonTag::CFAPattern)[0];
+      let raw = *self
+        .tiff
+        .find_ifds_with_tag(TiffCommonTag::CFAPattern)
+        .first()
+        .ok_or_else(|| RawlerError::DecoderFailed("KDC DC120: no IFD with CFAPattern".into()))?;
       let off = fetch_tiff_tag!(raw, TiffCommonTag::StripOffsets).force_usize(0);
       let mut white = self.camera.whitelevel.clone().expect("KDC needs a whitelevel in camera config")[0];
       let src = file.subview_until_eof(off as u64)?;
@@ -90,7 +94,11 @@ impl<'a> Decoder for KdcDecoder<'a> {
     }
 
     if self.camera.clean_model == "DC50" {
-      let raw = self.tiff.find_ifds_with_tag(TiffCommonTag::CFAPattern)[0];
+      let raw = *self
+        .tiff
+        .find_ifds_with_tag(TiffCommonTag::CFAPattern)
+        .first()
+        .ok_or_else(|| RawlerError::DecoderFailed("KDC DC50: no IFD with CFAPattern".into()))?;
       let width = self.camera.raw_width;
       let height = self.camera.raw_height;
       let off = fetch_tiff_tag!(raw, TiffCommonTag::StripOffsets).force_usize(0);
@@ -119,7 +127,7 @@ impl<'a> Decoder for KdcDecoder<'a> {
     let height = fetch_tiff_tag!(raw, TiffCommonTag::KdcLength).force_usize(0) + 70;
     let offset = fetch_tiff_tag!(raw, TiffCommonTag::KdcOffset);
     if offset.count() < 13 {
-      panic!("KDC Decoder: Couldn't find the KDC offset");
+      return Err(RawlerError::DecoderFailed("KDC: KdcOffset tag has fewer than 13 entries".into()));
     }
     let mut off = offset.force_usize(4) + offset.force_usize(12);
 
@@ -198,8 +206,15 @@ impl<'a> KdcDecoder<'a> {
     let img = image::load_from_memory_with_format(&swapped_src, image::ImageFormat::Jpeg)
       .map_err(|err| RawlerError::DecoderFailed(format!("Failed to read JPEG image: {:?}", err)))?;
 
-    assert_eq!(width, img.width() as usize);
-    assert_eq!(height, img.height() as usize * 2);
+    if width != img.width() as usize || height != img.height() as usize * 2 {
+      return Err(RawlerError::DecoderFailed(format!(
+        "KDC DC120 JPEG: expected {}x{} but got {}x{}",
+        width,
+        height,
+        img.width(),
+        img.height() * 2
+      )));
+    }
     let buf = img.as_flat_samples_u8().ok_or("KDC: failed to get u8 samples from JPEG")?;
     let jpeg = buf.as_slice();
 
