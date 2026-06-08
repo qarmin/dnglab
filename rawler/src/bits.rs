@@ -227,7 +227,10 @@ impl LookupTable {
   }
 
   pub fn new_with_bits(table: &[u16], bits: u32) -> LookupTable {
-    assert!(!table.is_empty());
+    if table.is_empty() {
+      log::warn!("LookupTable::new_with_bits: table is empty, returning default");
+      return Self::new(&[0; 1]);
+    }
     if table.len() >= 1 << bits {
       Self::new(table)
     } else {
