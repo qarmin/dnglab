@@ -182,7 +182,7 @@ impl RawDevelop {
         rawimage.width,
         rawimage.height,
       )),
-      _ => todo!(),
+      cpp => return Err(crate::RawlerError::DecoderFailed(format!("develop: unsupported cpp {}", cpp))),
     };
 
     if self.steps.contains(&ProcessingStep::Demosaic) {
@@ -191,7 +191,7 @@ impl RawDevelop {
           if let Intermediate::Monochrome(pixels) = intermediate {
             let roi = if self.steps.contains(&ProcessingStep::CropActiveArea) {
               if rawimage.active_area.is_some() && rawimage.fuji_rotation_width.is_some() {
-                panic!("ActiveArea is not possible when rotation is not normalized");
+                return Err(crate::RawlerError::DecoderFailed("ActiveArea is not possible when rotation is not normalized".to_string()));
               }
               rawimage.active_area.unwrap_or(pixels.rect())
             } else {
@@ -217,7 +217,7 @@ impl RawDevelop {
               let xtrans_demosaic = XTransBilinearDemosaic::new();
               Intermediate::ThreeColor(xtrans_demosaic.demosaic(&pixels, &config.cfa, &config.colors, roi))
             } else {
-              todo!()
+              return Err(crate::RawlerError::DecoderFailed(format!("develop: unsupported CFA sensor type {:?}", config.sensor)));
             }
           } else {
             intermediate
@@ -254,7 +254,7 @@ impl RawDevelop {
           9 => adapt_bradford(&illu, &Illuminant::D65, &transform_1d::<3, 3>(&matrix).expect("Transformation failed"))
             .as_flattened()
             .to_vec(),
-          _ => unimplemented!(),
+          _ => return Err(crate::RawlerError::DecoderFailed(format!("develop: unsupported matrix length {}", matrix.len()))),
         }
       }
 
