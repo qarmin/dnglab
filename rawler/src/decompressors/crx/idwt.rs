@@ -234,9 +234,7 @@ impl CodecParams {
     iwt_transforms: &mut Vec<WaveletTransform>,
     level: usize,
   ) -> Result<()> {
-    assert!(level > 0);
     if level == 0 {
-      // This code is not called from pathes where level is 0. But we keep this check.
       return Ok(());
     }
 
