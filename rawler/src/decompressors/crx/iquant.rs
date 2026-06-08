@@ -100,7 +100,8 @@ impl CodecParams {
         //eprintln!("q-param: {}", param.q_param);
         // prev. version
         let q_scale = if param.q_param / 6 >= 6 {
-          Q_STEP_TBL[param.q_param as usize % 6] * (1 << (param.q_param / 6 + 26))
+          let shift = param.q_param / 6 + 26;
+          Q_STEP_TBL[param.q_param as usize % 6].saturating_mul(1u32.checked_shl(shift).unwrap_or(u32::MAX))
         } else {
           Q_STEP_TBL[param.q_param as usize % 6] >> (6 - param.q_param / 6)
         };
