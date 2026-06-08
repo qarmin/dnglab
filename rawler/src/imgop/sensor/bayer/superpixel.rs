@@ -27,10 +27,12 @@ impl Demosaic<f32, 3> for Superpixel3Channel {
   /// The result image is 1/4 of size.
   fn demosaic(&self, pixels: &PixF32, cfa: &CFA, colors: &PlaneColor, roi: Rect) -> Color2D<f32, 3> {
     if colors.plane_count() != 3 {
-      panic!("Demosaic for 3 channels needs 3 color planes, but {} given", colors.plane_count());
+      log::error!("Demosaic for 3 channels needs 3 color planes, but {} given", colors.plane_count());
+      return Color2D::new(0, 0);
     }
     if !cfa.is_rgb() {
-      panic!("Demosaic for 3 channels requires RGB CFA pattern, but CFA {} given", cfa);
+      log::error!("Demosaic for 3 channels requires RGB CFA pattern, but CFA {} given", cfa);
+      return Color2D::new(0, 0);
     }
     // ROI width / height must be align on bayer pattern size, so deleting the rightmost bit will do the job.
     let roi = Rect::new(roi.p, Dim2::new(roi.width() & !1, roi.height() & !1));
@@ -89,7 +91,8 @@ impl Demosaic<f32, 4> for Superpixel4Channel {
   /// The result image is 1/4 of size.
   fn demosaic(&self, pixels: &PixF32, cfa: &CFA, colors: &PlaneColor, roi: Rect) -> Color2D<f32, 4> {
     if colors.plane_count() != 4 {
-      panic!("Demosaic for 4 channels needs 4 color planes, but {} given", colors.plane_count());
+      log::error!("Demosaic for 4 channels needs 4 color planes, but {} given", colors.plane_count());
+      return Color2D::new(0, 0);
     }
     // ROI width / height must be align on bayer pattern size, so deleting the rightmost bit will do the job.
     let roi = Rect::new(roi.p, Dim2::new(roi.width() & !1, roi.height() & !1));
