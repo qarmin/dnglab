@@ -109,6 +109,9 @@ impl<T: BitStorage> BitArray<T> {
   }
 
   pub fn get_lsb(&self) -> T {
+    if self.nbits == 0 {
+      return T::default();
+    }
     self.storage >> (T::bit_size() - self.nbits)
   }
 
@@ -117,10 +120,12 @@ impl<T: BitStorage> BitArray<T> {
   }
 
   pub fn from_lsb(nbits: usize, value: T) -> Self {
-    Self {
-      storage: value << (T::bit_size() - nbits),
-      nbits,
-    }
+    let storage = if nbits == 0 {
+      T::default()
+    } else {
+      value << (T::bit_size() - nbits)
+    };
+    Self { storage, nbits }
   }
 }
 
