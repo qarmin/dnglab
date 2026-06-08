@@ -597,7 +597,9 @@ impl<'a> NefDecoder<'a> {
 
     let mut huff_select = 0;
     if v0 == 73 || v1 == 88 {
-      assert!(stream.remaining_bytes() >= 2110);
+      if stream.remaining_bytes() < 2110 {
+        return Err(RawlerError::DecoderFailed(format!("NEF: metadata stream too short: {} < 2110", stream.remaining_bytes())));
+      }
       stream.consume_bytes(2110);
     }
     if v0 == 70 {
