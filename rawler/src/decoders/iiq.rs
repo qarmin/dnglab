@@ -144,7 +144,6 @@ impl TryFrom<usize> for IiqCompression {
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IiqFormat {
-  //tiff: GenericTiffReader,
   makernotes: IiqMakernotes,
 }
 
