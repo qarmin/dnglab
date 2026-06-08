@@ -164,7 +164,9 @@ impl<'a> TfrDecoder<'a> {
 
   fn get_wb(&self) -> Result<[f32; 4]> {
     let levels = fetch_tiff_tag!(self.tiff, TiffCommonTag::AsShotNeutral);
-    assert_eq!(levels.count(), 3);
+    if levels.count() != 3 {
+      return Err(RawlerError::DecoderFailed(format!("TFR: AsShotNeutral has {} entries, expected 3", levels.count())));
+    }
     Ok([1.0 / levels.force_f32(0), 1.0 / levels.force_f32(1), 1.0 / levels.force_f32(2), f32::NAN])
   }
 
