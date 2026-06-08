@@ -116,7 +116,7 @@ pub trait TiffReader {
   }
 
   fn get_first_entry(&self, _tag: u16) -> Option<Entry> {
-    unimplemented!();
+    None // not implemented
     /*
     Some(Entry {
       value: (32 as u16).into(),
