@@ -100,7 +100,9 @@ impl<'a> Decoder for SrwDecoder<'a> {
         },
         Some(x) => {
           let coffset = x.force_usize(0);
-          assert!(coffset > 0, "Surely this can't be the start of the file");
+          if coffset == 0 {
+            return Err(RawlerError::DecoderFailed("SRW: SrwSensorAreas offset is zero".to_string()));
+          }
           let loffsets = file.subview_until_eof(coffset as u64)?;
           SrwDecoder::decode_srw1(&src, loffsets, width, height, dummy)
         }
