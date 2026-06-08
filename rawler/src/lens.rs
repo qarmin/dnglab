@@ -301,16 +301,10 @@ pub struct LensIdentifier {
 
 impl LensIdentifier {
   pub(crate) fn new(name: Option<String>, id: Option<LensId>, nikon_id: Option<String>, olympus_id: Option<String>) -> Self {
-    if name.is_some() || id.is_some() || nikon_id.is_some() || olympus_id.is_some() {
-      Self {
-        name,
-        id,
-        nikon_id,
-        olympus_id,
-      }
-    } else {
-      panic!("LensIdentifier must contain a name or id");
+    if name.is_none() && id.is_none() && nikon_id.is_none() && olympus_id.is_none() {
+      log::warn!("LensIdentifier created with no identifying fields");
     }
+    Self { name, id, nikon_id, olympus_id }
   }
 }
 
@@ -337,7 +331,10 @@ pub struct LensDescription {
 fn build_lens_database() -> Option<Vec<LensDescription>> {
   let toml = match LENSES_TOML.parse::<Value>() {
     Ok(val) => val,
-    Err(e) => panic!("{}", format!("Error parsing lenses.toml: {:?}", e)),
+    Err(e) => {
+      log::error!("Error parsing lenses.toml: {:?}", e);
+      return None;
+    }
   };
 
   let mut lenses = Vec::new();
