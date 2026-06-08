@@ -176,8 +176,8 @@ impl<'a> Decoder for PefDecoder<'a> {
       {
         let y = borders[0] as u32;
         let x = borders[2] as u32;
-        let width = image.width() - x - borders[3] as u32;
-        let height = image.height() - y - borders[1] as u32;
+        let width = image.width().saturating_sub(x).saturating_sub(borders[3] as u32);
+        let height = image.height().saturating_sub(y).saturating_sub(borders[1] as u32);
         return Ok(Some(image.crop_imm(x, y, width, height)));
       } else {
         return Ok(Some(image));
