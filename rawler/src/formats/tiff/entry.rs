@@ -194,7 +194,7 @@ impl Entry {
         }
       }
       TYPE_SRATIONAL => {
-        let mut tmp = vec![0; count as usize * 2]; // SRational is 2x i32
+        let mut tmp = vec![0; (count as usize).saturating_mul(2)]; // SRational is 2x i32
         reader.read_i32_into(&mut tmp)?;
 
         let mut v = Vec::with_capacity(count as usize);
