@@ -321,7 +321,12 @@ impl Bmff {
     Ok(Self { filebox })
   }
 
-  pub fn compatible_brand(&self, _brand: &str) -> bool {
-    true // FIXME
+  pub fn compatible_brand(&self, brand: &str) -> bool {
+    let brand_bytes = brand.as_bytes();
+    if brand_bytes.len() != 4 {
+      return false;
+    }
+    let fourcc = [brand_bytes[0], brand_bytes[1], brand_bytes[2], brand_bytes[3]];
+    self.filebox.ftyp.compatible_brands.iter().any(|b| b.value == fourcc)
   }
 }
