@@ -123,6 +123,9 @@ fn set_yuv_420(out: &mut [u16], row: usize, col: usize, width: usize, y1: i32, y
 }
 
 pub fn decode_sony_ljpeg_420(ljpeg: &LjpegDecompressor, out: &mut [u16], width: usize, height: usize) -> Result<(), String> {
+  if ljpeg.sof.cps < 3 {
+    return Err(format!("ljpeg sony 4:2:0: need at least 3 components, got {}", ljpeg.sof.cps));
+  }
   if ljpeg.sof.width * 3 != width || ljpeg.sof.height != height {
     return Err(format!(
       "ljpeg: trying to decode {}x{} into {}x{}",
@@ -195,6 +198,9 @@ pub fn decode_sony_ljpeg_420(ljpeg: &LjpegDecompressor, out: &mut [u16], width: 
 }
 
 pub fn decode_ljpeg_420(ljpeg: &LjpegDecompressor, out: &mut [u16], width: usize, height: usize) -> Result<(), String> {
+  if ljpeg.sof.cps < 3 {
+    return Err(format!("ljpeg 4:2:0: need at least 3 components, got {}", ljpeg.sof.cps));
+  }
   if ljpeg.sof.width * 3 != width || ljpeg.sof.height != height {
     return Err(format!(
       "ljpeg: trying to decode {}x{} into {}x{}",
@@ -266,6 +272,9 @@ fn set_yuv_422(out: &mut [u16], row: usize, col: usize, width: usize, y1: i32, y
 }
 
 pub fn decode_ljpeg_422(ljpeg: &LjpegDecompressor, out: &mut [u16], width: usize, height: usize) -> Result<(), String> {
+  if ljpeg.sof.cps < 3 {
+    return Err(format!("ljpeg 4:2:2: need at least 3 components, got {}", ljpeg.sof.cps));
+  }
   if ljpeg.sof.width * 3 != width || ljpeg.sof.height != height {
     return Err(format!(
       "ljpeg: trying to decode {}x{} into {}x{}",
@@ -334,6 +343,9 @@ pub fn decode_hasselblad(ljpeg: &LjpegDecompressor, out: &mut [u16], width: usiz
 }
 
 pub fn decode_leaf_strip(src: &[u8], out: &mut [u16], width: usize, height: usize, htable1: &HuffTable, htable2: &HuffTable, bpred: i32) -> Result<(), String> {
+  if width < 2 || out.len() < 2 {
+    return Err(format!("ljpeg decode_leaf_strip: width {} too small", width));
+  }
   let mut pump = BitPumpJPEG::new(src);
   out[0] = (bpred + htable1.huff_decode(&mut pump)?) as u16;
   out[1] = (bpred + htable2.huff_decode(&mut pump)?) as u16;

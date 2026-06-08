@@ -358,6 +358,12 @@ impl<'a> LjpegDecompressor<'a> {
   }
 
   pub fn decode_leaf(&self, width: usize, height: usize) -> Result<PixU16, String> {
+    if height == 0 {
+      return Err("ljpeg decode_leaf: height must be > 0".to_string());
+    }
+    if self.sof.cps < 2 {
+      return Err(format!("ljpeg decode_leaf: need at least 2 components, got {}", self.sof.cps));
+    }
     let mut offsets = vec![0_usize; 1];
     let mut input = ByteStream::new(self.buffer, Endian::Big);
 
