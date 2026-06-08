@@ -147,7 +147,7 @@ impl CiffEntry {
       0x0000 | 0x8000 => self.data[idx] as u32,
       0x1000 => LEu16(&self.data, idx * 2) as u32,
       0x1800 | 0x2000 | 0x2800 | 0x3000 => LEu32(&self.data, idx * 4),
-      _ => panic!("{}", format!("Trying to read typ {} for a u32", self.typ)),
+      _ => { log::warn!("CIFF: unsupported type 0x{:x} for u32 read, returning 0", self.typ); 0 }
     }
   }
 
