@@ -309,8 +309,10 @@ impl RawImage {
       let blacklevels: Vec<f32> = samples.into_iter().map(|s| s.avg / s.count as f32).collect();
 
       debug!("Calculated blacklevels: {:?}", blacklevels);
-      // TODO: support other then RGGB levels
-      assert_eq!(cfa.width * cfa.height, 4);
+      if cfa.width * cfa.height != 4 {
+        log::warn!("calc_black_levels: CFA {}x{} is not 2x2, skipping blacklevel calculation", cfa.width, cfa.height);
+        return None;
+      }
       Some(BlackLevel::new(&[blacklevels[0], blacklevels[1], blacklevels[2], blacklevels[3]], 2, 2, 1))
     } else {
       None
