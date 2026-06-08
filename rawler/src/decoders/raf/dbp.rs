@@ -13,6 +13,9 @@ pub(super) fn decode_dbp(buf: &[u8], width: usize, height: usize, dummy: bool) -
   let mut out = alloc_image_ok!(width, height, dummy);
   let mut cursor = Cursor::new(buf);
   let n_tiles = 8;
+  if width % n_tiles != 0 {
+    log::warn!("RAF DBP: width {} is not divisible by {} tiles, last columns may be missing", width, n_tiles);
+  }
   let tile_width = width / n_tiles;
   let _tile_height = 3856;
   log::debug!("DBP width: {}, height: {}, tile: {}", width, height, tile_width);
