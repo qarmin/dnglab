@@ -66,11 +66,11 @@ impl Dim2 {
 /// Clip a value with min/max value
 #[allow(clippy::if_same_then_else)]
 pub fn clip(p: f32, min: f32, max: f32) -> f32 {
-  if p > max {
+  if p.is_nan() {
+    min
+  } else if p > max {
     max
   } else if p < min {
-    min
-  } else if p.is_nan() {
     min
   } else {
     p
@@ -290,12 +290,13 @@ where
   if black == T::default() {
     pix.iter().copied().map(f32::from).map(|x| x / f32::from(white)).collect()
   } else {
+    let black_f = f32::from(black);
+    let range = f32::from(white) - black_f;
     pix
       .iter()
       .copied()
-      .map(|x| x - black)
       .map(f32::from)
-      .map(|x| x / f32::from(white - black))
+      .map(|x| (x - black_f).max(0.0) / range)
       .collect()
   }
 }
