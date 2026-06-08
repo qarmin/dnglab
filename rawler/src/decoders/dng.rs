@@ -63,7 +63,7 @@ impl<'a> Decoder for DngDecoder<'a> {
       1 => RawPhotometricInterpretation::BlackIsZero,
       32803 => RawPhotometricInterpretation::Cfa(CFAConfig::new_from_camera(&cam)),
       34892 => RawPhotometricInterpretation::LinearRaw,
-      _ => todo!(),
+      other => return Err(RawlerError::DecoderFailed(format!("DNG: unsupported photometric interpretation {}", other))),
     };
 
     let raw_data = plain_image_from_ifd(raw, file)?;
