@@ -525,7 +525,7 @@ pub(crate) fn dynamic_image_from_ifd(ifd: &IFD, rawsource: &RawSource) -> Result
             ImageBuffer::<Rgb<u8>, Vec<u8>>::from_raw(tiff_width as u32, tiff_height as u32, buf.to_vec())
               .ok_or(RawlerError::DecoderFailed(format!("Create RGB thumbnail from strip failed")))?,
           )),
-          _ => unimplemented!(),
+          other => Err(RawlerError::DecoderFailed(format!("dynamic_image_from_ifd: unsupported cpp={} for 8-bit image", other))),
         }
       }
       9..=16 => {
@@ -543,10 +543,10 @@ pub(crate) fn dynamic_image_from_ifd(ifd: &IFD, rawsource: &RawSource) -> Result
             ImageBuffer::<Rgb<u16>, Vec<u16>>::from_raw((tiff_width) as u32, tiff_height as u32, samples)
               .ok_or(RawlerError::DecoderFailed(format!("Create RGB image failed")))?,
           )),
-          _ => unimplemented!(),
+          other => Err(RawlerError::DecoderFailed(format!("dynamic_image_from_ifd: unsupported cpp={} for 16-bit image", other))),
         }
       }
-      _ => unimplemented!(),
+      other => Err(RawlerError::DecoderFailed(format!("dynamic_image_from_ifd: unsupported bits={}", other))),
     },
     RawImageData::Float(samples) => match cpp {
       3 => Ok(DynamicImage::ImageRgb32F(
@@ -554,7 +554,7 @@ pub(crate) fn dynamic_image_from_ifd(ifd: &IFD, rawsource: &RawSource) -> Result
         ImageBuffer::<Rgb<f32>, Vec<f32>>::from_raw(tiff_width as u32, tiff_height as u32, samples)
           .ok_or(RawlerError::DecoderFailed(format!("Create RGB image failed")))?,
       )),
-      _ => unimplemented!(),
+      other => Err(RawlerError::DecoderFailed(format!("dynamic_image_from_ifd: unsupported cpp={} for float image", other))),
     },
   }
 }
@@ -698,7 +698,7 @@ pub fn plain_image_from_ifd(ifd: &IFD, rawsource: &RawSource) -> Result<RawImage
 
       return Ok(RawImageData::Float(pixbuf.into_inner()));
     }
-    _ => unimplemented!("other sample-formats"),
+    other => return Err(RawlerError::DecoderFailed(format!("decode_dng_image: unsupported sample format {:?}", other))),
   }
 }
 
