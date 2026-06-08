@@ -885,6 +885,9 @@ impl RawLoader {
     for cam in cams {
       map.insert((cam.make.clone(), cam.model.clone(), cam.mode.clone()), cam.clone());
       if cam.filesize > 0 {
+        if naked.contains_key(&cam.filesize) {
+          log::debug!("Naked camera filesize {} collision: overwriting with {} {}", cam.filesize, cam.make, cam.model);
+        }
         naked.insert(cam.filesize, cam);
       }
     }
