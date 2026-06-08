@@ -186,7 +186,8 @@ pub fn xyY_to_XYZ(x: f32, y: f32, Y: f32) -> [f32; 3] {
   if y.is_normal() && y.is_sign_positive() {
     [x * Y / y, Y, (1.0 - x - y) * Y / y]
   } else {
-    panic!("xy_to_XYZ(): 'y' argument must be greater than zero");
+    log::warn!("xyY_to_XYZ(): 'y' is zero or subnormal, returning zero vector");
+    [0.0, 0.0, 0.0]
   }
 }
 
