@@ -285,7 +285,7 @@ impl<'a> BitPump for BitPumpJPEG<'a> {
               let nextbyte = self.buffer[self.pos];
               if nextbyte != 0xff {
                 nextbyte
-              } else if self.buffer[self.pos + 1] == 0x00 {
+              } else if self.pos + 1 < self.buffer.len() && self.buffer[self.pos + 1] == 0x00 {
                 self.pos += 1; // Skip the extra byte used to mark 255
                 nextbyte
               } else {
@@ -421,12 +421,14 @@ impl<'a> ByteStream<'a> {
   #[inline(always)]
   pub fn skip_to_marker(&mut self) -> Result<usize, String> {
     let mut skip_count = 0;
-    while !(self.buffer[self.pos] == 0xFF && self.buffer[self.pos + 1] != 0 && self.buffer[self.pos + 1] != 0xFF) {
+    while self.pos + 1 < self.buffer.len()
+      && !(self.buffer[self.pos] == 0xFF && self.buffer[self.pos + 1] != 0 && self.buffer[self.pos + 1] != 0xFF)
+    {
       self.pos += 1;
       skip_count += 1;
-      if self.pos >= self.buffer.len() {
-        return Err("No marker found inside rest of buffer".to_string());
-      }
+    }
+    if self.pos + 1 >= self.buffer.len() {
+      return Err("No marker found inside rest of buffer".to_string());
     }
     self.pos += 1; // Make the next byte the marker
     Ok(skip_count + 1)
