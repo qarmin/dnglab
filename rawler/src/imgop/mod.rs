@@ -198,12 +198,13 @@ impl Rect {
   }
 
   pub fn adapt(&self, master: &Self) -> Self {
-    assert!(self.p.x >= master.p.x);
-    assert!(self.p.y >= master.p.y);
-    assert!(self.d.w <= master.d.w);
-    assert!(self.d.h <= master.d.h);
+    let x = self.p.x.max(master.p.x);
+    let y = self.p.y.max(master.p.y);
+    if self.p.x < master.p.x || self.p.y < master.p.y || self.d.w > master.d.w || self.d.h > master.d.h {
+      log::warn!("Rect::adapt: {:?} does not fit inside master {:?}", self, master);
+    }
     Self {
-      p: Point::new(self.p.x - master.p.x, self.p.y - master.p.y),
+      p: Point::new(x - master.p.x, y - master.p.y),
       d: self.d,
     }
   }
