@@ -517,7 +517,8 @@ impl<'a> IiqDecoder<'a> {
           4
         }
         _ => {
-          panic!("Unsupported flat field typ");
+          log::warn!("IIQ: unsupported flat field type 0x{:x}, skipping", flat.typ);
+          continue;
         }
       };
 
@@ -904,7 +905,7 @@ impl<'a> IiqDecoder<'a> {
           sensor_margins,
         })
       }
-      _ => panic!("No sensor calibration data found."),
+      _ => return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "IIQ: no sensor calibration data found")),
     }
   }
 
@@ -964,7 +965,7 @@ impl<'a> IiqDecoder<'a> {
           *img.at_mut(row, col) = (diags as f32 * 0.0732233 + horiz as f32 * 0.3535534).round() as u16;
         }
         _ => {
-          panic!("Other colors should not appear here");
+          log::warn!("IIQ: unexpected CFA color at row {}, col {}", row, col);
         }
       }
     }
