@@ -555,6 +555,7 @@ impl<'a> NefDecoder<'a> {
       // Some models (D6) using row padding, so the row width is slightly larger.
       // This should be no more than 16 extra bytes.
       let total_padding = size - req_input_bytes;
+      if height == 0 { return Ok(None); }
       let per_row_padding = total_padding / height;
       if total_padding % height != 0 {
         None
