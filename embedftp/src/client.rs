@@ -744,13 +744,11 @@ fn add_file_info(path: PathBuf, out: &mut Vec<u8>) {
   let file_size = meta.size();
   #[cfg(windows)]
   let file_size = meta.file_size();
-  let path = match path.to_str() {
-    Some(path) => match path.split('/').next_back() {
-      Some(path) => path,
-      _ => return,
-    },
-    _ => return,
+  let filename = match path.file_name().and_then(|n| n.to_str()) {
+    Some(name) => name,
+    None => return,
   };
+  let path = filename;
   // TODO: maybe improve how we get rights in here?
   let rights = if meta.permissions().readonly() { "r--r--r--" } else { "rw-rw-rw-" };
 
@@ -776,13 +774,11 @@ fn add_file_info(path: PathBuf, out: &mut Vec<u8>) {
 // If an error occurs when we try to get file's information, we just return and don't send its info.
 fn add_file_info_nlst(path: PathBuf, out: &mut Vec<u8>) {
   let extra = if path.is_dir() { "/" } else { "" };
-  let path = match path.to_str() {
-    Some(path) => match path.split('/').next_back() {
-      Some(path) => path,
-      _ => return,
-    },
-    _ => return,
+  let filename = match path.file_name().and_then(|n| n.to_str()) {
+    Some(name) => name,
+    None => return,
   };
+  let path = filename;
 
   let file_str = format!("{path}{extra}\r\n", path = path, extra = extra);
   out.extend(file_str.as_bytes());
