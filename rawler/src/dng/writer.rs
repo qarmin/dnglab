@@ -200,9 +200,9 @@ where
         assert!(crop.p.y >= active_area.p.y);
         self.ifd_mut().add_tag(
           DngTag::DefaultCropOrigin,
-          [(crop.p.x - active_area.p.x) as u16, (crop.p.y - active_area.p.y) as u16],
+          [(crop.p.x - active_area.p.x) as u32, (crop.p.y - active_area.p.y) as u32],
         );
-        self.ifd_mut().add_tag(DngTag::DefaultCropSize, [crop.d.w as u16, crop.d.h as u16]);
+        self.ifd_mut().add_tag(DngTag::DefaultCropSize, [crop.d.w as u32, crop.d.h as u32]);
       }
       CropMode::Best => {
         let crop = rawimage.crop_area.unwrap_or(active_area);
@@ -210,9 +210,9 @@ where
         assert!(crop.p.y >= active_area.p.y);
         self.ifd_mut().add_tag(
           DngTag::DefaultCropOrigin,
-          [(crop.p.x - active_area.p.x) as u16, (crop.p.y - active_area.p.y) as u16],
+          [(crop.p.x - active_area.p.x) as u32, (crop.p.y - active_area.p.y) as u32],
         );
-        self.ifd_mut().add_tag(DngTag::DefaultCropSize, [crop.d.w as u16, crop.d.h as u16]);
+        self.ifd_mut().add_tag(DngTag::DefaultCropSize, [crop.d.w as u32, crop.d.h as u32]);
       }
       CropMode::None => {}
     }
