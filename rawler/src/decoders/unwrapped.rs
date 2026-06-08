@@ -94,10 +94,10 @@ pub fn decode_unwrapped(file: &RawSource) -> Result<RawImageData> {
     27 => Ok(RawImageData::Integer(srw::SrwDecoder::decode_srw3(data, width, height, false).into_inner())),
     28 => Ok(RawImageData::Integer(kdc::KdcDecoder::decode_dc120(data, width, height, false).into_inner())),
     29 => Ok(RawImageData::Integer(
-      rw2::v4decompressor::decode_panasonic_v4(data, width, height, false, false).into_inner(),
+      rw2::v4decompressor::decode_panasonic_v4(data, width, height, false, false)?.into_inner(),
     )),
     30 => Ok(RawImageData::Integer(
-      rw2::v4decompressor::decode_panasonic_v4(data, width, height, true, false).into_inner(),
+      rw2::v4decompressor::decode_panasonic_v4(data, width, height, true, false)?.into_inner(),
     )),
     31 => {
       let table = {

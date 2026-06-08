@@ -1,7 +1,7 @@
-use crate::{bits::LEu16, decoders::*, decompressors::decompress_strips_fn, pumps::BitPump};
+use crate::{Result, bits::LEu16, decoders::*, decompressors::decompress_strips_fn, pumps::BitPump};
 
-pub(crate) fn decode_panasonic_v4(buf: &[u8], width: usize, height: usize, split: bool, dummy: bool) -> PixU16 {
-  decompress_strips_fn(
+pub(crate) fn decode_panasonic_v4(buf: &[u8], width: usize, height: usize, split: bool, dummy: bool) -> Result<PixU16> {
+  Ok(decompress_strips_fn(
     width,
     height,
     5,
@@ -44,8 +44,7 @@ pub(crate) fn decode_panasonic_v4(buf: &[u8], width: usize, height: usize, split
       }
       Ok(())
     }),
-  )
-  .expect("Failed to decode") // Decoder should never fail
+  ).map_err(|e| RawlerError::DecoderFailed(format!("Panasonic v4 decode failed: {}", e)))?)
 }
 
 pub struct BitPumpPanasonic<'a> {
