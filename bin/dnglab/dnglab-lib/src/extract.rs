@@ -141,7 +141,7 @@ fn get_original_name(file: &GenericTiffReader) -> Option<String> {
     ..
   }) = file.get_entry(DngTag::OriginalRawFileName)
   {
-    Some(orig_name.strings()[0].clone())
+    orig_name.strings().first().cloned()
   } else {
     None
   }
