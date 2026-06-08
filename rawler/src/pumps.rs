@@ -105,7 +105,7 @@ impl<'a> BitPumpMSB32<'a> {
   fn refill(&mut self) -> (u32, u32) {
     if let Some(chunk) = self.buffer.next() {
       if chunk.len() == 4 {
-        // Fast refill
+        // Fast refill: words stored LE, bits consumed MSB-first
         let bits: u32 = u32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
         (bits, u32::BITS)
       } else {
