@@ -23,8 +23,10 @@ impl StszBox {
   pub fn sample_size(&self, sample: u32) -> u32 {
     if self.sample_size > 0 {
       self.sample_size
+    } else if sample == 0 {
+      0
     } else {
-      self.sample_sizes[sample as usize - 1]
+      self.sample_sizes.get(sample as usize - 1).copied().unwrap_or(0)
     }
   }
 }
