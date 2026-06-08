@@ -519,7 +519,9 @@ impl RawImage {
   pub fn apply_scaling(&mut self) -> crate::Result<()> {
     let mut pixels = self.data.as_f32();
     match &self.photometric {
-      RawPhotometricInterpretation::BlackIsZero => todo!(),
+      RawPhotometricInterpretation::BlackIsZero => {
+        return Err(crate::RawlerError::DecoderFailed("apply_scaling not implemented for BlackIsZero photometric".into()));
+      }
       RawPhotometricInterpretation::Cfa(_) => {
         correct_blacklevel_cfa(
           pixels.to_mut(),
@@ -595,7 +597,7 @@ impl RawImage {
   }
 
   pub fn linearize(&self) -> Result<Self> {
-    todo!()
+    Err(crate::RawlerError::DecoderFailed("RawImage::linearize() is not yet implemented".into()))
   }
 
   /// Outputs the inverted matrix that converts pixels in the camera colorspace into
@@ -707,9 +709,8 @@ impl RawImage {
   /// Returns the CFA pattern after the crop has been applied (and thus the pattern
   /// potentially shifted)
   pub fn cropped_cfa(&self) -> CFA {
-    //self.cfa.shift(self.crops[3], self.crops[0])
-    todo!()
-    // Need to specify which crop, active or DefaultCrop
+    // TODO: implement proper crop-aware CFA shifting
+    self.camera.cfa.clone()
   }
 
   /// Checks if the image is monochrome
