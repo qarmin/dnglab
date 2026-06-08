@@ -463,6 +463,10 @@ impl<'a> BitPump for BitPumpReverseBitsMSB<'a> {
   fn peek_bits(&mut self, num: u32) -> u32 {
     debug_assert!(num <= 32);
     if num > self.nbits {
+      if self.pos + 4 > self.buffer.len() {
+        self.nbits = 0;
+        return 0;
+      }
       let mut raw: [u8; 4] = BEu32(self.buffer, self.pos).to_ne_bytes();
       raw[0] = raw[0].reverse_bits();
       raw[1] = raw[1].reverse_bits();
