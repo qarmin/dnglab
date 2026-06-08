@@ -383,7 +383,7 @@ pub(crate) fn decompress_8bit(buf: &[u8], width: usize, height: usize, dummy: bo
 pub(crate) fn decompress_10le_lsb16(buf: &[u8], width: usize, height: usize, dummy: bool) -> std::result::Result<PixU16, String> {
   let need = (height * width * 10).div_ceil(8);
   if buf.len() < need {
-    return Err(format!("decompress_10be(): buffer too short ({} < {})", buf.len(), need));
+    return Err(format!("decompress_10le_lsb16(): buffer too short ({} < {})", buf.len(), need));
   }
   decompress_lines_fn(
     width,
@@ -681,7 +681,7 @@ pub(crate) fn decompress_14be_msb32(buf: &[u8], width: usize, height: usize, dum
 /// ```
 #[multiversion(targets("x86_64+avx+avx2+fma", "x86+sse", "aarch64+neon"))]
 pub(crate) fn decompress_12le_wcontrol(buf: &[u8], width: usize, height: usize, dummy: bool) -> std::result::Result<PixU16, String> {
-  // Calulate expected bytes per line.
+  // Calculate expected bytes per line.
   let perline = width * 12 / 8 + ((width + 2) / 10);
 
   let need = height * perline;
@@ -729,7 +729,7 @@ pub(crate) fn decompress_12le_wcontrol(buf: &[u8], width: usize, height: usize, 
 /// ```
 #[multiversion(targets("x86_64+avx+avx2+fma", "x86+sse", "aarch64+neon"))]
 pub(crate) fn decompress_12be_wcontrol(buf: &[u8], width: usize, height: usize, dummy: bool) -> std::result::Result<PixU16, String> {
-  // Calulate expected bytes per line.
+  // Calculate expected bytes per line.
   let perline = width * 12 / 8 + ((width + 2) / 10);
 
   let need = height * perline;
