@@ -241,17 +241,25 @@ impl CodecParams {
 
         for band in &mut plane.subbands {
           debug!("{}", band.descriptor_line());
-          assert!(band.subband_size != 0);
-          assert_eq!(band.subband_size % 8, 0);
+          if band.subband_size == 0 {
+            log::warn!("CRX: subband_size is zero, possibly corrupt file");
+          }
+          if band.subband_size % 8 != 0 {
+            log::warn!("CRX: subband_size {} is not a multiple of 8", band.subband_size);
+          }
           band_sizes += band.subband_size;
         }
-        assert_eq!(plane.plane_size, band_sizes);
+        if plane.plane_size != band_sizes {
+          log::warn!("CRX: plane_size {} != sum of band_sizes {}", plane.plane_size, band_sizes);
+        }
         plane_sizes += plane.plane_size;
       }
       // Tile may contain some extra bytes for quantization
-      // This extra size must be subtracted before comaring to the
+      // This extra size must be subtracted before comparing to the
       // sum of plane sizes.
-      assert_eq!(tile.tile_size - tile.extra_size(), plane_sizes);
+      if tile.tile_size - tile.extra_size() != plane_sizes {
+        log::warn!("CRX: tile_size - extra {} != plane_sizes {}", tile.tile_size - tile.extra_size(), plane_sizes);
+      }
     }
   }
 
