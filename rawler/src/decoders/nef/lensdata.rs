@@ -95,7 +95,10 @@ pub(super) fn from_makernote(makernote: &IFD) -> Result<Option<NefLensData>> {
         parse_lensdata_0x800(version, &buf)?
       }
 
-      _ => todo!("Lensdata version: 0x{:x} not implemented", version),
+      _ => {
+        log::warn!("NEF: lensdata version 0x{:x} not implemented, skipping lens data", version);
+        return Ok(None);
+      }
     };
 
     log::debug!("NEF lens data version: 0x{:x}, lensdata: {:?}", version, lensdata);
