@@ -110,7 +110,7 @@ where
   }
 
   pub fn image(&mut self, _image: &RawImageData, _width: u16, _height: u16) -> Result<()> {
-    todo!()
+    Err(DngError::General("DngWriter::image() is not yet implemented".to_string()))
   }
 
   pub fn raw_image(
@@ -402,7 +402,7 @@ where
         self.root_ifd.add_tag(DngTag::CalibrationIlluminant2, u16::from(illu));
         self.root_ifd.add_tag(DngTag::ColorMatrix2, matrix.as_ref());
       }
-      _ => todo!(),
+      other => log::warn!("DNG color matrix slot {} not supported (only 1 and 2), ignoring", other),
     }
   }
 
@@ -543,7 +543,10 @@ fn wbcoeff_to_tiff_value(rawimage: &RawImage) -> Vec<Rational> {
           values.push(Rational::new_f32(1.0 / wb[2], 100000));
           values
         }
-        _ => todo!(),
+        other => {
+          log::warn!("DNG as_shot_neutral: unsupported cpp={} for LinearRaw, returning identity", other);
+          vec![Rational::new(1, 1)]
+        }
       }
     }
   }
@@ -615,7 +618,7 @@ where
       tiles_compr
     }
     RawImageData::Float(ref _data) => {
-      panic!("invalid format");
+      return Err(DngError::General("DNG LJPEG compression does not support float data".to_string()));
     }
   };
 
