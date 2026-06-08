@@ -189,7 +189,7 @@ impl CFA {
 
   /// Count of unique colors in pattern
   pub fn unique_colors(&self) -> usize {
-    self.pattern.iter().flatten().unique().count()
+    self.pattern.iter().take(self.height).flat_map(|row| row.iter().take(self.width)).unique().count()
   }
 
   /// Check if pattern is a RGGB or variant.
