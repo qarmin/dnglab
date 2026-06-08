@@ -103,10 +103,8 @@ impl BlackLevel {
 
   pub fn zero(width: usize, height: usize, cpp: usize) -> Self {
     if width == 0 || height == 0 || cpp == 0 {
-      panic!(
-        "Blacklevel::zero() must not be called with zero value arguments: width: {}, height: {}, cpp: {}",
-        width, height, cpp
-      );
+      log::warn!("BlackLevel::zero(): called with zero dimension(s): {}x{}x{}", width, height, cpp);
+      return Self::default();
     }
     Self {
       levels: vec![0_u16; cpp * width * height].iter().map(|x| Rational::from(*x)).collect(),
