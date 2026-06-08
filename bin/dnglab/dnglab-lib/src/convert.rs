@@ -101,7 +101,7 @@ fn generate_job(entry: &FileMap, options: &ArgMatches) -> Result<Vec<Raw2DngJob>
       if index.to_lowercase().eq("all") {
         (true, 0)
       } else {
-        (false, index.parse::<usize>().unwrap_or(0))
+        (false, index.parse::<usize>().map_err(|_| crate::AppError::InvalidCmdSwitch(format!("Invalid index value: '{}'", index)))?)
       }
     }
     None => (false, 0),
