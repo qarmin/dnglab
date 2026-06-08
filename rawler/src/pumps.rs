@@ -37,7 +37,7 @@ impl<'a> BitPumpLSB<'a> {
           .fold((0, 0), |(bits, bit_cnt), x| ((bits << 8) | *x as u32, bit_cnt + 8))
       }
     } else {
-      panic!("Can't refill bitpump, buffer exhausted");
+      log::warn!("Bit pump buffer exhausted"); (0, 0)
     }
   }
 }
@@ -74,7 +74,7 @@ impl<'a> BitPumpMSB<'a> {
         chunk.into_iter().fold((0, 0), |(bits, bit_cnt), x| ((bits << 8) | *x as u32, bit_cnt + 8))
       }
     } else {
-      panic!("Can't refill bitpump, buffer exhausted");
+      log::warn!("Bit pump buffer exhausted"); (0, 0)
     }
   }
 }
@@ -116,7 +116,7 @@ impl<'a> BitPumpMSB32<'a> {
           .fold((0, 0), |(bits, bit_cnt), x| ((bits << 8) | *x as u32, bit_cnt + 8))
       }
     } else {
-      panic!("Can't refill bitpump, buffer exhausted");
+      log::warn!("Bit pump buffer exhausted"); (0, 0)
     }
   }
 
