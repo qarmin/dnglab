@@ -101,7 +101,7 @@ pub trait TiffReader {
     let list = self.find_ifds_with_tag(TiffCommonTag::NewSubFileType);
     list
       .iter()
-      .find(|ifd| ifd.get_entry(TiffCommonTag::NewSubFileType).expect("IFD must contain this entry").force_u32(0) == typ)
+      .find(|ifd| ifd.get_entry(TiffCommonTag::NewSubFileType).map_or(false, |e| e.force_u32(0) == typ))
       .copied()
   }
 
