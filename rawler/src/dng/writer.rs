@@ -516,7 +516,9 @@ fn wbcoeff_to_tiff_value(rawimage: &RawImage) -> Vec<Rational> {
       vec![Rational::new(1, 1)] // TODO: is this useful?
     }
     RawPhotometricInterpretation::Cfa(config) => {
-      assert!([1, 3, 4].contains(&config.cfa.unique_colors()));
+      if ![1, 3, 4].contains(&config.cfa.unique_colors()) {
+        log::warn!("DNG writer: unexpected CFA unique colors {}", config.cfa.unique_colors());
+      }
 
       let mut values = Vec::with_capacity(4);
 
