@@ -43,8 +43,13 @@ pub(crate) fn parse_colordata(colordata: &Entry) -> Result<ColorData> {
         -4 => ColorData::new(data, version, 0x47, Some(0x14d), Some(0x0569), Some(0x056a)),
         // -3 (M10/M3)
         -3 => ColorData::new(data, version, 0x47, Some(0x108), None, None),
-
-        _ => return Err(format!("Unknown2 COLORDATA version: {}", data[0]).into()),
+        // Fall back to length-based matching for other undefined-type entries
+        _ => match data.len() {
+          582 => ColorData::new(data, version, 0x19, None, None, None),
+          653 => ColorData::new(data, version, 0x22, None, None, None),
+          796 => ColorData::new(data, version, 0x3f, Some(0xc4), None, None),
+          _ => return Err(format!("Unknown COLORDATA version {} with length {}", data[0], data.len()).into()),
+        },
       })
 
       /*
