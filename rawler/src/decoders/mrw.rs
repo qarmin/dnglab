@@ -217,7 +217,7 @@ impl<'a> Decoder for MrwDecoder<'a> {
     };
 
     let wb_coeffs = if self.camera.find_hint("swapped_wb") {
-      [self.wb_vals[2] as f32, self.wb_vals[0] as f32, self.wb_vals[0] as f32, self.wb_vals[1] as f32]
+      [self.wb_vals[2] as f32, self.wb_vals[0] as f32, self.wb_vals[3] as f32, self.wb_vals[1] as f32]
     } else {
       [self.wb_vals[0] as f32, self.wb_vals[1] as f32, self.wb_vals[2] as f32, self.wb_vals[3] as f32]
     };
