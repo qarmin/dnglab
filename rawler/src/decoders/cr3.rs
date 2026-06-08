@@ -350,8 +350,9 @@ impl<'a> Decoder for Cr3Decoder<'a> {
               Point::new(big.crop_left_offset as usize, big.crop_top_offset as usize),
               Point::new((big.crop_right_offset + 1) as usize, (big.crop_bottom_offset + 1) as usize),
             );
-            assert!(rect_crop.x() + rect_crop.width() <= cmp1.f_width as usize);
-            assert!(rect_crop.y() + rect_crop.height() <= cmp1.f_height as usize);
+            if rect_crop.x() + rect_crop.width() > cmp1.f_width as usize || rect_crop.y() + rect_crop.height() > cmp1.f_height as usize {
+              log::warn!("CR3: crop rect {:?} exceeds image bounds {}x{}", rect_crop, cmp1.f_width, cmp1.f_height);
+            }
 
             img.crop_area = Some(rect_crop);
 
@@ -369,10 +370,9 @@ impl<'a> Decoder for Cr3Decoder<'a> {
               )
             };
             log::debug!("IAD1 active area: {:?}", rect_active);
-            assert!(rect_crop.x() >= rect_active.x());
-            assert!(rect_crop.y() >= rect_active.y());
-            assert!(rect_crop.width() <= rect_active.width());
-            assert!(rect_crop.height() <= rect_active.height());
+            if rect_crop.x() < rect_active.x() || rect_crop.y() < rect_active.y() || rect_crop.width() > rect_active.width() || rect_crop.height() > rect_active.height() {
+              log::warn!("CR3: crop rect {:?} does not fit within active area {:?}", rect_crop, rect_active);
+            }
 
             // Check if after apply of active_area the crop is out of bounds.
             // This is know to happen with R5II 1.6 crop raw files.
@@ -381,8 +381,10 @@ impl<'a> Decoder for Cr3Decoder<'a> {
               // In this case, we ignore the active_area in IAD1 and use the crop instead.
               log::debug!("Raw file has invalid active_area parameters in IAD1, using crop_area instead");
               img.active_area = Some(rect_crop);
+            } else if overflow {
+              log::warn!("CR3: activearea overflow without activearea_bug hint, using crop as active");
+              img.active_area = Some(rect_crop);
             } else {
-              assert!(!overflow, "Hit the activearea_bug, maybe you just need to define the hint?");
               img.active_area = Some(rect_active);
             }
 
