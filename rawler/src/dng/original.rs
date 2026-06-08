@@ -68,7 +68,7 @@ impl OriginalCompressed {
     for chunk in self.chunks.iter().map(ForkBlock::decompress) {
       let buf = chunk?;
       stream.write_all(&buf)?;
-      total = buf.len();
+      total += buf.len();
       ctx.consume(&buf);
     }
 
