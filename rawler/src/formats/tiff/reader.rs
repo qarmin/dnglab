@@ -33,10 +33,11 @@ pub trait TiffReader {
   }
 
   fn root_ifd(&self) -> &IFD {
-    if self.file().chain.is_empty() {
-      panic!("TIFF must have at least one root IFD but the IFD list is empty");
-    }
-    &self.file().chain[0]
+    self.file().chain.first().unwrap_or_else(|| {
+      log::warn!("TIFF::root_ifd(): IFD chain is empty, this should not happen");
+      // Safety: this should never be reached after successful parse_file()
+      panic!("TIFF must have at least one root IFD");
+    })
   }
 
   fn get_entry<T: TiffTag>(&self, tag: T) -> Option<&Entry> {
