@@ -320,7 +320,7 @@ impl<'a> Decoder for RafDecoder<'a> {
         _ => return Err(RawlerError::unsupported(&self.camera, format!("RAF: Don't know how to decode bps {}", bps))),
       }
     } else if self.camera.clean_model == "DBP for GX680" {
-      assert_eq!(bps, 16);
+      if bps != 16 { return Err(RawlerError::DecoderFailed(format!("RAF DBP: expected bps=16, got {}", bps))); }
       dbp::decode_dbp(&src, width, height, dummy)?
     } else if src.len() < bps * width * height / 8 {
       if !dummy {
@@ -605,7 +605,9 @@ impl<'a> RafDecoder<'a> {
       let cropwidth = width - active_area[2] - x;
       let cropheight = height - active_area[3] - y; // TODO: bug, invalid order of crop index
 
-      assert_eq!(alt_layout, camera.find_hint("fuji_rotation_alt"));
+      if alt_layout != camera.find_hint("fuji_rotation_alt") {
+        return Err(RawlerError::DecoderFailed("RAF: alt_layout mismatch with fuji_rotation_alt hint".to_string()));
+      }
 
       if camera.find_hint("fuji_rotation_alt") {
         let rotatedwidth = cropheight + cropwidth / 2;
