@@ -424,7 +424,7 @@ impl<'a> SrwDecoder<'a> {
                 diff_bits[i] = diff_bits_mode[colornum][0] + 1;
               }
               2 => {
-                diff_bits[i] = diff_bits_mode[colornum][0] - 1;
+                diff_bits[i] = diff_bits_mode[colornum][0].saturating_sub(1);
               }
               3 => {
                 diff_bits[i] = pump.get_bits(4);
