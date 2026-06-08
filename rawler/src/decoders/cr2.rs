@@ -267,11 +267,9 @@ impl<'a> Decoder for Cr2Decoder<'a> {
     let mut img = RawImage::new(camera.clone(), image, cpp, wb, photometric, blacklevel, whitelevel, dummy);
 
     if let Some(file_crop) = self.get_sensor_area()? {
-      assert!(
-        img.crop_area.is_none(),
-        "Camera {} has embedded crop params, remove crop from config file!",
-        self.camera.clean_make
-      );
+      if img.crop_area.is_some() {
+        log::warn!("Camera {} has embedded crop params AND config crop - using embedded", self.camera.clean_make);
+      }
       img.crop_area = Some(file_crop);
     } else {
       //panic!("Camera {} has no embedded crops, but all CR2 should contain them?!", self.camera.clean_make);
