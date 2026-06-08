@@ -35,7 +35,9 @@ impl<R: Read + Seek> ReadBox<&mut R> for MdhdBox {
         reader.read_u64::<BigEndian>()?,
       )
     } else {
-      assert_eq!(version, 0);
+      if version != 0 {
+        return Err(BmffError::Parse(format!("mdhd: unsupported version {}", version)));
+      }
       (
         reader.read_u32::<BigEndian>()? as u64,
         reader.read_u32::<BigEndian>()? as u64,
