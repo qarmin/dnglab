@@ -435,7 +435,9 @@ impl Value {
       Value::Undefined(data) => data,
       Value::Unknown(_, data) => data,
       _ => {
-        panic!("Unable to call get_data() on this value type");
+        log::warn!("get_data() called on non-byte value type {:?}, returning empty", self.value_type_name());
+        static EMPTY: Vec<u8> = Vec::new();
+        &EMPTY
       }
     }
   }
