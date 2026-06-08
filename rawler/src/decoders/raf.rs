@@ -140,14 +140,6 @@ pub fn parse_raf_format(file: &RawSource, offset: u32) -> Result<IFD> {
   })
 }
 
-// This won't work for many samples, don't use it.
-#[allow(dead_code)]
-fn get_compression(file: &RawSource) -> Result<u32> {
-  let buf = file.subview(0, 0x6c + 4)?;
-  let compression = BEu32(buf, 0);
-  Ok(compression)
-}
-
 /// RAF format contains multiple TIFF and TIFF-like structures.
 /// This creates a IFD with all other IFDs found collected as SubIFDs.
 fn parse_raf(file: &RawSource) -> Result<IFD> {
