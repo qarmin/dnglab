@@ -85,7 +85,8 @@ impl<T: BitStorage> BitArray<T> {
 
   pub fn push(&mut self, bit: bool) {
     if self.is_full() {
-      panic!("BitArray is full");
+      log::warn!("BitArray::push(): array is full, ignoring");
+      return;
     } else {
       self.nbits += 1;
       self.storage = self.storage | (T::from(bit) << (T::bit_size() - self.nbits));
@@ -94,7 +95,8 @@ impl<T: BitStorage> BitArray<T> {
 
   pub fn pop(&mut self) -> bool {
     if self.is_empty() {
-      panic!("BitArray is empty");
+      log::warn!("BitArray::pop(): array is empty, returning false");
+      return false;
     } else {
       let mask = T::from(true) << (T::bit_size() - self.nbits);
       let bit = self.storage & mask;
