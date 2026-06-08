@@ -41,9 +41,7 @@ impl WhiteLevel {
   }
 
   pub fn new_bits(bits: u32, cpp: usize) -> Self {
-    if bits > 32 {
-      panic!("Whitelevel can only be calculated for max. 32 bits, but {} bits given", bits);
-    }
+    let bits = bits.min(32);
     let level: u32 = ((1_u64 << bits) - 1) as u32;
     Self(vec![level; cpp])
   }
@@ -373,7 +371,7 @@ impl RawImage {
     let whitelevel = cam
       .make_whitelevel(cpp)
       .or(whitelevel)
-      .unwrap_or_else(|| panic!("Need whitelevel in config: {}", cam.clean_model));
+      .unwrap_or_else(|| { log::warn!("No whitelevel found for {}, using u16 max", cam.clean_model); WhiteLevel::new_bits(16, 1) });
 
     let crop_area = cam.crop_area.map(|area| Rect::new_with_borders(Dim2::new(pixel_width, image.height), &area));
 
