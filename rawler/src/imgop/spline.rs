@@ -41,8 +41,19 @@ impl Spline {
       alpha[i] = (3. / h[i]) * (sn.a - s.a) - (3. / h[i - 1]) * (s.a - sp.a);
     }
 
-    mu[0] = 1.0;
+    let mut l = vec![0.0_f32; self.num_coords];
+    l[0] = 1.0;
+    mu[0] = 0.0;
     z[0] = 0.0;
+
+    for i in 1..self.num_segments {
+      l[i] = 2.0 * (self.xcp[i + 1] - self.xcp[i - 1]) as f32 - h[i - 1] * mu[i - 1];
+      mu[i] = h[i] / l[i];
+      z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+    }
+    l[self.num_segments] = 1.0;
+    z[self.num_segments] = 0.0;
+    self.segments[self.num_segments].c = 0.0;
 
     for i in (0..self.num_segments).rev() {
       let sn = self.segments[i + 1].clone();
