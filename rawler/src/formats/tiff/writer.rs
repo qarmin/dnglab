@@ -248,7 +248,7 @@ impl DirectoryWriter {
         embedded.replace(offset as u32);
       } else {
         if value.count() == 0 {
-          panic!("TIFF value is empty, tag: {:?}", tag);
+          return Err(TiffError::General(format!("TIFF value is empty, tag: {:?}", tag)));
         }
         embedded.replace(value.as_embedded()?);
       }
