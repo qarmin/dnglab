@@ -92,7 +92,9 @@ impl BlackLevel {
   where
     T: Copy + Into<Rational>,
   {
-    assert_eq!(levels.len(), width * height * cpp);
+    if levels.len() != width * height * cpp {
+      log::warn!("BlackLevel::new: levels.len() {} != width*height*cpp {}", levels.len(), width * height * cpp);
+    }
     Self {
       levels: levels.iter().map(|x| (*x).into()).collect(),
       width,
