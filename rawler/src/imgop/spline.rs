@@ -67,7 +67,7 @@ impl Spline {
     let mut prev = 0;
     for p in control_points {
       if p.x < prev {
-        panic!("err, p.x {} must be >= {}", p.x, prev);
+        return Spline { num_coords: 0, num_segments: 0, xcp: vec![], segments: vec![] };
       }
       prev = p.x;
     }

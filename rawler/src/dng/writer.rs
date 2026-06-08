@@ -110,7 +110,7 @@ where
   }
 
   pub fn image(&mut self, _image: &RawImageData, _width: u16, _height: u16) -> Result<()> {
-    todo!()
+    Err(DngError::General("SubFrameWriter::image() is not yet implemented".to_string()))
   }
 
   pub fn raw_image(
@@ -402,7 +402,7 @@ where
         self.root_ifd.add_tag(DngTag::CalibrationIlluminant2, u16::from(illu));
         self.root_ifd.add_tag(DngTag::ColorMatrix2, matrix.as_ref());
       }
-      _ => todo!(),
+      _ => log::warn!("DNG writer: unsupported color matrix slot {}, skipping", slot),
     }
   }
 
@@ -543,7 +543,7 @@ fn wbcoeff_to_tiff_value(rawimage: &RawImage) -> Vec<Rational> {
           values.push(Rational::new_f32(1.0 / wb[2], 100000));
           values
         }
-        _ => todo!(),
+        _ => vec![],
       }
     }
   }
@@ -615,7 +615,7 @@ where
       tiles_compr
     }
     RawImageData::Float(ref _data) => {
-      panic!("invalid format");
+      return Err(DngError::General("Float data not supported for tile compression".to_string()));
     }
   };
 
