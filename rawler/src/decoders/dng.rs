@@ -134,22 +134,23 @@ impl<'a> Decoder for DngDecoder<'a> {
         .cloned()
         .map(Rc::new),
       WellKnownIFD::VirtualDngRawTags => {
+        let raw_ifd = self.get_raw_ifd()?;
         let mut ifd = IFD::default();
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::OpcodeList1);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::OpcodeList2);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::OpcodeList3);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::NoiseProfile);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::BayerGreenSplit);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::ChromaBlurRadius);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::AntiAliasStrength);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::NoiseReductionApplied);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::ProfileGainTableMap);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::CameraCalibration1);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::CameraCalibration2);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::CameraCalibration3);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::ForwardMatrix1);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::ForwardMatrix2);
-        IFD::copy_tag(&mut ifd, self.get_raw_ifd()?, DngTag::ForwardMatrix3);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::OpcodeList1);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::OpcodeList2);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::OpcodeList3);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::NoiseProfile);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::BayerGreenSplit);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::ChromaBlurRadius);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::AntiAliasStrength);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::NoiseReductionApplied);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::ProfileGainTableMap);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::CameraCalibration1);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::CameraCalibration2);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::CameraCalibration3);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::ForwardMatrix1);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::ForwardMatrix2);
+        IFD::copy_tag(&mut ifd, raw_ifd, DngTag::ForwardMatrix3);
         Some(Rc::new(ifd))
       }
       WellKnownIFD::VirtualDngRootTags => {
