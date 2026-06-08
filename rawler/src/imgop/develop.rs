@@ -365,8 +365,8 @@ impl RawDevelop {
         root_ifd.add_tag(TiffCommonTag::SamplesPerPixel, [1_u16]);
         root_ifd.add_tag(TiffCommonTag::PhotometricInt, [1_u16]);
         root_ifd.add_tag(TiffCommonTag::RowsPerStrip, strip_rows);
-        root_ifd.add_tag(TiffCommonTag::ImageWidth, pixels.width as u16);
-        root_ifd.add_tag(TiffCommonTag::ImageLength, pixels.height as u16);
+        root_ifd.add_tag(TiffCommonTag::ImageWidth, pixels.width as u32);
+        root_ifd.add_tag(TiffCommonTag::ImageLength, pixels.height as u32);
       }
       Intermediate::ThreeColor(pixels) => {
         let data = convert_from_f32_scaled_u16(&pixels.flatten(), 0, u16::MAX);
@@ -381,8 +381,8 @@ impl RawDevelop {
         root_ifd.add_tag(TiffCommonTag::SamplesPerPixel, [3_u16]);
         root_ifd.add_tag(TiffCommonTag::PhotometricInt, [2_u16]);
         root_ifd.add_tag(TiffCommonTag::RowsPerStrip, strip_rows);
-        root_ifd.add_tag(TiffCommonTag::ImageWidth, pixels.width as u16);
-        root_ifd.add_tag(TiffCommonTag::ImageLength, pixels.height as u16);
+        root_ifd.add_tag(TiffCommonTag::ImageWidth, pixels.width as u32);
+        root_ifd.add_tag(TiffCommonTag::ImageLength, pixels.height as u32);
       }
       Intermediate::FourColor(pixels) => {
         let data = convert_from_f32_scaled_u16(&pixels.flatten(), 0, u16::MAX);
@@ -397,8 +397,8 @@ impl RawDevelop {
         root_ifd.add_tag(TiffCommonTag::SamplesPerPixel, [4_u16]);
         root_ifd.add_tag(TiffCommonTag::PhotometricInt, [2_u16]);
         root_ifd.add_tag(TiffCommonTag::RowsPerStrip, strip_rows);
-        root_ifd.add_tag(TiffCommonTag::ImageWidth, pixels.width as u16);
-        root_ifd.add_tag(TiffCommonTag::ImageLength, pixels.height as u16);
+        root_ifd.add_tag(TiffCommonTag::ImageWidth, pixels.width as u32);
+        root_ifd.add_tag(TiffCommonTag::ImageLength, pixels.height as u32);
       }
     }
 
