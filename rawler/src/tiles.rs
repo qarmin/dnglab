@@ -208,7 +208,8 @@ impl<'a, T> Iterator for IntoTilesIter<'a, T> {
       let first_line_begin = &mut self.original[start_index..];
       if first_line_begin.len() < self.tile_height * next_line_distance - (tile_x * self.tile_width * self.cpp) {
         // The tile input buffer is too small. Maybe an issue with component-per-pixels?
-        panic!("Tile buffer too small.")
+        log::warn!("Tile buffer too small, skipping tile");
+        return None;
       }
       let first_line = &mut first_line_begin[..self.tile_width * self.cpp];
 
