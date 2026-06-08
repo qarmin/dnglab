@@ -526,6 +526,9 @@ impl IFD {
         sizes.len()
       )));
     }
+    if offsets.is_empty() {
+      return Err(TiffError::General("Strip data has zero offsets".into()));
+    }
 
     // Check if all slices are continous
     let (is_continous, end_off) =
