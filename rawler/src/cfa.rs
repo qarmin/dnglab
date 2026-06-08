@@ -121,7 +121,10 @@ impl CFA {
       36 => (6, 6),
       16 => (2, 8),
       144 => (12, 12),
-      _ => panic!("Unknown CFA size \"{}\"", patname),
+      _ => {
+        log::warn!("CFA: unknown pattern size {} for '{}', using empty CFA", patname.len(), patname);
+        (0, 0)
+      }
     };
     let mut pattern: [[u8; 48]; 48] = [[0; 48]; 48];
 
@@ -172,7 +175,7 @@ impl CFA {
   pub fn cfa_color_at(&self, row: usize, col: usize) -> CFAColor {
     (self.pattern[(row + 48) % 48][(col + 48) % 48])
       .try_into()
-      .expect("invalid CFA color value in pattern")
+      .unwrap_or(CFAColor::UNKNOWN)
   }
 
   /// Get a flat pattern
@@ -250,7 +253,7 @@ impl CFA {
           3 => "C",
           4 => "M",
           5 => "Y",
-          x => panic!("Unknown CFA color \"{}\"", x),
+          x => { log::warn!("CFA: unknown color {} in shift result, using '?'", x); "?" }
         });
       }
     }
@@ -343,7 +346,8 @@ impl PlaneColor {
         }
       }
     }
-    panic!("CFAColor {:?} is not included in CFA {:?}", color, cfa);
+    log::warn!("CFA: color {:?} not found in CFA {:?}, returning 0", color, cfa);
+    0
   }
 }
 
