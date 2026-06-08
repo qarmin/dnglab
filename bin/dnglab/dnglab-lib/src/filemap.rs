@@ -31,7 +31,7 @@ pub enum MapMode {
 
 impl FileMap {
   pub fn new(src: &Path, dest: &Path) -> Self {
-    assert!(src.is_absolute());
+    debug_assert!(src.is_absolute(), "FileMap src path must be absolute");
     Self {
       src: PathBuf::from(src),
       dest: PathBuf::from(dest),
@@ -42,10 +42,10 @@ impl FileMap {
 impl DirMap {
   /// Construct new DirMap instance from src and dest
   pub fn new(src: &Path, dest: &Path) -> Self {
-    assert!(src.is_absolute());
-    assert!(dest.is_absolute());
-    assert!(src.is_dir());
-    assert!(dest.is_dir());
+    debug_assert!(src.is_absolute(), "DirMap src path must be absolute");
+    debug_assert!(dest.is_absolute(), "DirMap dest path must be absolute");
+    debug_assert!(src.is_dir(), "DirMap src must be a directory");
+    debug_assert!(dest.is_dir(), "DirMap dest must be a directory");
     Self {
       src: PathBuf::from(src),
       dest: PathBuf::from(dest),
