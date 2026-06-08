@@ -35,8 +35,9 @@ impl<'a> PlaneLineIter<'a> {
   /// Create a new PlaneLine iterator for decoding
   fn new(codec: CodecParams, tile: &'a Tile, plane: &'a Plane, mdat: &'a [u8]) -> Result<Self> {
     // Some checks for correct input
-    assert!(tile.plane_height > 0);
-    assert!(tile.plane_width > 0);
+    if tile.plane_height == 0 || tile.plane_width == 0 {
+      return Err(CrxError::General(format!("CRX: plane dimensions are zero: {}x{}", tile.plane_width, tile.plane_height)));
+    }
 
     // Reference to data section in MDAT
     // All calculated offsets are relative to the data section.
