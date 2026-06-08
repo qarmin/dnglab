@@ -125,12 +125,18 @@ fn write_atomic(final_path: &Path, mut reader: impl io::Read) -> io::Result<()> 
   let mut tmp = final_path.as_os_str().to_owned();
   tmp.push(".part");
   let tmp = PathBuf::from(tmp);
-  {
+  let result: io::Result<()> = (|| {
     let mut f = fs::File::create(&tmp)?;
     io::copy(&mut reader, &mut f)?;
-    f.sync_all()?;
+    f.sync_all()
+  })();
+  match result {
+    Ok(()) => fs::rename(&tmp, final_path),
+    Err(e) => {
+      let _ = fs::remove_file(&tmp);
+      Err(e)
+    }
   }
-  fs::rename(&tmp, final_path)
 }
 
 #[cfg(test)]
