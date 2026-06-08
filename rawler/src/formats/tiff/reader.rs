@@ -282,7 +282,8 @@ impl<'a, R: Read + Seek + 'a> EndianReader<'a, R> {
   }
 
   pub fn position(&mut self) -> Result<u32> {
-    Ok(self.inner.stream_position().map(|v| v as u32)?)
+    let pos = self.inner.stream_position()?;
+    u32::try_from(pos).map_err(|_| TiffError::General(format!("EndianReader position {} exceeds u32 maximum", pos)))
   }
 
   // TODO: try_from?
