@@ -82,25 +82,27 @@ impl Camera {
   }
 
   pub fn make_blacklevel(&self, cpp: usize) -> Option<BlackLevel> {
-    self.blacklevel.as_ref().map(|x| {
+    self.blacklevel.as_ref().and_then(|x| {
       if x.len() == 1 {
-        BlackLevel::new(&vec![x[0]; cpp], 1, 1, cpp)
+        Some(BlackLevel::new(&vec![x[0]; cpp], 1, 1, cpp))
       } else if x.len() == self.cfa.width * self.cfa.height * cpp {
-        BlackLevel::new(x, self.cfa.width, self.cfa.height, cpp)
+        Some(BlackLevel::new(x, self.cfa.width, self.cfa.height, cpp))
       } else {
-        panic!("Invalid blacklevel data")
+        log::warn!("Camera config: invalid blacklevel data (len={}), ignoring", x.len());
+        None
       }
     })
   }
 
   pub fn make_whitelevel(&self, cpp: usize) -> Option<WhiteLevel> {
-    self.whitelevel.as_ref().map(|x| {
+    self.whitelevel.as_ref().and_then(|x| {
       if x.len() == 1 {
-        WhiteLevel(vec![x[0] as u32; cpp])
+        Some(WhiteLevel(vec![x[0] as u32; cpp]))
       } else if x.len() == cpp {
-        WhiteLevel(x.clone())
+        Some(WhiteLevel(x.clone()))
       } else {
-        panic!("Invalid whitelevel data")
+        log::warn!("Camera config: invalid whitelevel data (len={}), ignoring", x.len());
+        None
       }
     })
   }
@@ -109,44 +111,46 @@ impl Camera {
     for (name, val) in ct {
       match name.as_ref() {
         n @ "make" => {
-          self.make = val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)).to_string();
+          self.make = val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }).to_string();
         }
         n @ "model" => {
-          self.model = val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)).to_string();
+          self.model = val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }).to_string();
         }
         n @ "mode" => {
-          self.mode = val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)).to_string();
+          self.mode = val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }).to_string();
         }
         n @ "clean_make" => {
-          self.clean_make = val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)).to_string();
+          self.clean_make = val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }).to_string();
         }
         n @ "clean_model" => {
-          self.clean_model = val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)).to_string();
+          self.clean_model = val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }).to_string();
         }
         n @ "remark" => {
-          self.remark = Some(val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)).to_string());
+          self.remark = Some(val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }).to_string());
         }
         n @ "whitepoint" => {
-          let white = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as u32;
+          let white = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as u32;
           self.whitelevel = Some(vec![white]);
         }
         n @ "blackpoint" => {
-          let black = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as u32;
+          let black = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as u32;
           self.blacklevel = Some(vec![black]);
         }
         n @ "blackareah" => {
-          let vals = val.as_array().unwrap_or_else(|| panic!("{} must be an array", n));
-          self.blackareah = Some((
-            vals[0].as_integer().expect("blackareah[0] must be an integer") as usize,
-            vals[1].as_integer().expect("blackareah[1] must be an integer") as usize,
-          ));
+          if let Some(vals) = val.as_array() {
+            self.blackareah = Some((
+              vals[0].as_integer().unwrap_or(0) as usize,
+              vals[1].as_integer().unwrap_or(0) as usize,
+            ));
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
         n @ "blackareav" => {
-          let vals = val.as_array().unwrap_or_else(|| panic!("{} must be an array", n));
-          self.blackareav = Some((
-            vals[0].as_integer().expect("blackareav[0] must be an integer") as usize,
-            vals[1].as_integer().expect("blackareav[1] must be an integer") as usize,
-          ));
+          if let Some(vals) = val.as_array() {
+            self.blackareav = Some((
+              vals[0].as_integer().unwrap_or(0) as usize,
+              vals[1].as_integer().unwrap_or(0) as usize,
+            ));
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
         "color_matrix" => {
           if let Some(color_matrix) = val.as_table() {
@@ -163,86 +167,88 @@ impl Camera {
           } else {
             eprintln!("Invalid matrix spec for {}", self.clean_model);
           }
-          assert!(!self.color_matrix.is_empty());
+          if self.color_matrix.is_empty() { log::warn!("Camera TOML: color_matrix is empty for {}", self.clean_model); }
         }
         n @ "active_area" => {
-          let crop_vals = val.as_array().unwrap_or_else(|| panic!("{} must be an array", n));
-          let mut crop = [0, 0, 0, 0];
-          for (i, val) in crop_vals.iter().enumerate() {
-            crop[i] = val.as_integer().expect("active_area values must be integers") as usize;
-          }
-          self.active_area = Some(crop);
+          if let Some(crop_vals) = val.as_array() {
+            let mut crop = [0, 0, 0, 0];
+            for (i, val) in crop_vals.iter().enumerate().take(4) {
+              crop[i] = val.as_integer().unwrap_or(0) as usize;
+            }
+            self.active_area = Some(crop);
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
         n @ "crop_area" => {
-          let crop_vals = val.as_array().unwrap_or_else(|| panic!("{} must be an array", n));
-          let mut crop = [0, 0, 0, 0];
-          for (i, val) in crop_vals.iter().enumerate() {
-            crop[i] = val.as_integer().expect("crop_area values must be integers") as usize;
-          }
-          self.crop_area = Some(crop);
+          if let Some(crop_vals) = val.as_array() {
+            let mut crop = [0, 0, 0, 0];
+            for (i, val) in crop_vals.iter().enumerate().take(4) {
+              crop[i] = val.as_integer().unwrap_or(0) as usize;
+            }
+            self.crop_area = Some(crop);
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
         n @ "color_pattern" => {
-          self.cfa = CFA::new(val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)));
+          self.cfa = CFA::new(val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }));
         }
         n @ "plane_color" => {
-          self.plane_color = PlaneColor::new(val.as_str().unwrap_or_else(|| panic!("{} must be a string", n)));
+          self.plane_color = PlaneColor::new(val.as_str().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be a string, using empty", n); "" }));
         }
         n @ "bps" => {
-          self.bps = Some(val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as usize);
+          self.bps = Some(val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as usize);
         }
         n @ "real_bps" => {
-          self.real_bps = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as usize;
+          self.real_bps = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as usize;
         }
         n @ "filesize" => {
-          self.filesize = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as usize;
+          self.filesize = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as usize;
         }
         n @ "raw_width" => {
-          self.raw_width = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as usize;
+          self.raw_width = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as usize;
         }
         n @ "raw_height" => {
-          self.raw_height = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as usize;
+          self.raw_height = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as usize;
         }
         n @ "highres_width" => {
-          self.highres_width = val.as_integer().unwrap_or_else(|| panic!("{} must be an integer", n)) as usize;
+          self.highres_width = val.as_integer().unwrap_or_else(|| { log::warn!("Camera TOML: {} must be an integer, using 0", n); 0 }) as usize;
         }
         n @ "default_scale" => {
-          let scale_vals = val.as_array().unwrap_or_else(|| panic!("{} must be an array", n));
-          let scale_h = scale_vals[0].as_array().expect("must be array");
-          let scale_v = scale_vals[1].as_array().expect("must be array");
-          let scale = [
-            [
-              scale_h[0].as_integer().expect("must be integer") as u32,
-              scale_h[1].as_integer().expect("must be integer") as u32,
-            ],
-            [
-              scale_v[0].as_integer().expect("must be integer") as u32,
-              scale_v[1].as_integer().expect("must be integer") as u32,
-            ],
-          ];
-          self.default_scale = DefaultScale(scale);
+          if let Some(scale_vals) = val.as_array() {
+            if let (Some(scale_h), Some(scale_v)) = (scale_vals.get(0).and_then(|v| v.as_array()), scale_vals.get(1).and_then(|v| v.as_array())) {
+              let scale = [
+                [scale_h.get(0).and_then(|v| v.as_integer()).unwrap_or(1) as u32, scale_h.get(1).and_then(|v| v.as_integer()).unwrap_or(1) as u32],
+                [scale_v.get(0).and_then(|v| v.as_integer()).unwrap_or(1) as u32, scale_v.get(1).and_then(|v| v.as_integer()).unwrap_or(1) as u32],
+              ];
+              self.default_scale = DefaultScale(scale);
+            }
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
         n @ "best_quality_scale" => {
-          let scale_vals = val.as_array().unwrap_or_else(|| panic!("{} must be an array", n));
-          self.best_quality_scale = BestQualityScale([
-            scale_vals[0].as_integer().expect("must be integer") as u32,
-            scale_vals[1].as_integer().expect("must be integer") as u32,
-          ]);
+          if let Some(scale_vals) = val.as_array() {
+            self.best_quality_scale = BestQualityScale([
+              scale_vals.get(0).and_then(|v| v.as_integer()).unwrap_or(1) as u32,
+              scale_vals.get(1).and_then(|v| v.as_integer()).unwrap_or(1) as u32,
+            ]);
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
         n @ "hints" => {
           self.hints = Vec::new();
-          for hint in val.as_array().unwrap_or_else(|| panic!("{} must be an array", n)) {
-            self.hints.push(hint.as_str().expect("hints must be a string").to_string());
-          }
+          if let Some(hints) = val.as_array() {
+            for hint in hints {
+              self.hints.push(hint.as_str().unwrap_or("").to_string());
+            }
+          } else { log::warn!("Camera TOML: {} must be an array, skipping", n); }
         }
-        n @ "params" => {
-          for (name, val) in val.as_table().unwrap_or_else(|| panic!("{} must be a table", n)) {
+        "params" => {
+          if let Some(table) = val.as_table() {
+          for (name, val) in table {
             self.params.insert(name.clone(), val.clone());
           }
+          } // end if let Some(table)
         }
         "model_aliases" => {}
         "modes" => {} // ignore
         key => {
-          panic!("Unknown key: {}", key);
+          log::warn!("Camera TOML: unknown key '{}', ignoring", key);
         }
       }
     }
