@@ -816,7 +816,7 @@ pub(crate) fn apply_linearization(image: &mut PixU16, tbl: &Value, bits: u32) {
       });
     }
     _ => {
-      panic!("Unsupported linear table");
+      log::warn!("apply_linearization: unsupported table type, skipping");
     }
   }
 }
