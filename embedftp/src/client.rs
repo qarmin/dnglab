@@ -521,7 +521,7 @@ where
     if let Some(proto) = proto {
       if proto.to_uppercase().eq("ALL") {
         self.data_writer = None;
-        return Ok(());
+        return self.send(Answer::new(ResultCode::CommandOkay, "EPSV ALL acknowledged.")).await;
       }
     }
 
