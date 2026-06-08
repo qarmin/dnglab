@@ -27,11 +27,12 @@ impl StscBox {
   pub const TYP: FourCC = FourCC::with(['s', 't', 's', 'c']);
 
   pub fn get_entry_for_sample(&self, sample: u32) -> &StscEntry {
-    assert!(sample > 0, "Sample numbering starts with 1");
-    assert_eq!(self.entries.is_empty(), false, "stsc box must contains at least one entry");
-    assert_eq!(self.entries[0].first_sample, 1, "First entry must start with first sample");
+    if sample == 0 || self.entries.is_empty() {
+      return self.entries.first().unwrap_or(&self.entries[0]);
+    }
     match self.entries.binary_search_by(|entry| entry.first_sample.cmp(&sample)) {
       Ok(i) => &self.entries[i],
+      Err(0) => &self.entries[0],
       Err(i) => &self.entries[i - 1],
     }
   }
