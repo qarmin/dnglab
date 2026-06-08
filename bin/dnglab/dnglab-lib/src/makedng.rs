@@ -143,8 +143,7 @@ pub async fn makedng_internal(options: &ArgMatches, dest_path: &Path) -> crate::
             frame.ifd_mut().add_tag(DngTag::WhiteLevel, [u16::MAX, u16::MAX, u16::MAX]);
             frame.ifd_mut().add_tag(DngTag::LinearizationTable, linear_table_input);
           } else {
-            // We have no linearization table, so from 8 bit image there is a maximum
-            // white level of 255.
+            // No linearization table; 16-bit image has maximum white level of 65535 (u16::MAX).
             frame.ifd_mut().add_tag(DngTag::WhiteLevel, [u16::MAX, u16::MAX, u16::MAX]);
           }
 
