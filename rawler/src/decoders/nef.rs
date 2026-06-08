@@ -537,6 +537,9 @@ impl<'a> NefDecoder<'a> {
   fn is_uncompressed(&self, raw: &IFD) -> Result<Option<usize>> {
     let width = fetch_tiff_tag!(raw, TiffCommonTag::ImageWidth).force_usize(0);
     let height = fetch_tiff_tag!(raw, TiffCommonTag::ImageLength).force_usize(0);
+    if height == 0 {
+      return Ok(None);
+    }
     let bps = fetch_tiff_tag!(raw, TiffCommonTag::BitsPerSample).force_usize(0);
     let compression = fetch_tiff_tag!(raw, TiffCommonTag::Compression).force_usize(0);
     let size = fetch_tiff_tag!(raw, TiffCommonTag::StripByteCounts).force_usize(0);
