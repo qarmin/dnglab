@@ -125,8 +125,9 @@ impl Rect {
 
   // left, top, right, bottom
   pub fn new_with_points(p1: Point, p2: Point) -> Self {
-    assert!(p1.x <= p2.x);
-    assert!(p1.y <= p2.y);
+    if p1.x > p2.x || p1.y > p2.y {
+      log::warn!("Rect::new_with_points: p1 {:?} is not top-left of p2 {:?}", p1, p2);
+    }
     Self {
       p: p1,
       d: Dim2 {
