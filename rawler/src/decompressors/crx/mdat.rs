@@ -50,7 +50,9 @@ impl Tile {
       let mdat_qp_data_size = hdr.read_u32::<BigEndian>()?;
       let mdat_extra_size = hdr.read_u16::<BigEndian>()?;
       let terminator = hdr.read_u16::<BigEndian>()?;
-      assert!(terminator == 0);
+      if terminator != 0 {
+        return Err(CrxError::General(format!("CRX: tile QP data terminator 0x{:x} != 0", terminator)));
+      }
       Some(TileQPData {
         mdat_qp_data_size,
         mdat_extra_size,
@@ -60,8 +62,9 @@ impl Tile {
       None
     };
 
-    // TODO check on release
-    assert!((size == 8 && tail_sign == 0) || (size == 16 && tail_sign == 0x4000));
+    if !((size == 8 && tail_sign == 0) || (size == 16 && tail_sign == 0x4000)) {
+      return Err(CrxError::General(format!("CRX: unexpected tile header size {} / tail_sign 0x{:x}", size, tail_sign)));
+    }
 
     Ok(Tile {
       id,
@@ -167,7 +170,9 @@ impl Plane {
       rounded_bits_mask = 1 << (rounded_bits_mask - 1);
     }
 
-    assert!(flags & 0x00FFFFFF == 0);
+    if flags & 0x00FFFFFF != 0 {
+      log::warn!("CRX: plane flags 0x{:x} have unexpected lower 24 bits set", flags);
+    }
     Ok(Plane {
       id,
       ind,
@@ -244,7 +249,9 @@ pub struct Subband {
 impl Subband {
   pub fn new<R: Read>(id: usize, hdr: &mut R, ind: u16, parent_offset: usize, band_offset: usize) -> Result<Self> {
     let size = hdr.read_u16::<BigEndian>()?;
-    assert!((size == 8 && ind == 0xFF03) || (size == 16 && ind == 0xFF13));
+    if !((size == 8 && ind == 0xFF03) || (size == 16 && ind == 0xFF13)) {
+      return Err(CrxError::General(format!("CRX: unexpected subband size {} / indicator 0x{:x}", size, ind)));
+    }
     let subband_size = hdr.read_u32::<BigEndian>()? as usize;
     match ind {
       0xFF03 => {
@@ -285,7 +292,9 @@ impl Subband {
         let q_step_base = hdr.read_i32::<BigEndian>()?;
         let unused_bytes = hdr.read_u16::<BigEndian>()? as u32;
         let end_marker = hdr.read_u16::<BigEndian>()?;
-        assert!(end_marker == 0);
+        if end_marker != 0 {
+          return Err(CrxError::General(format!("CRX: subband end_marker 0x{:x} != 0", end_marker)));
+        }
         let counter = (flags >> 12) & 0xf; // 4 bits
         let data_size: usize = (subband_size as u32 - unused_bytes) as usize;
 
