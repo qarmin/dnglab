@@ -50,7 +50,7 @@ impl<'a> Decompressor<'a, u16> for JpegXLDecompressor {
         // jxl_oxide scales the pixels into full range of storage type.
         // If we get e.g. 12 bit compressed data, output is scaled to 16 bit.
         // This breaks blacklevel scaling. We need to scale back to given bps (from TIFF).
-        unimplemented!("JPEG-XL bit-depth {} not supported yet", header.bit_depth.bits_per_sample());
+        return Err(format!("JPEG-XL bit-depth {} not yet supported", header.bit_depth.bits_per_sample()));
       }
       //eprintln!("JPEG-XL Bit-Depth: {:?}", header.bit_depth);
     }
@@ -86,7 +86,7 @@ impl<'a> Decompressor<'a, u16> for JpegXLDecompressor {
           assert_eq!(line.len(), written);
         }
       }
-      _ => unimplemented!(),
+      _ => return Err(format!("JPEG-XL: bps {} not supported", self.bps)),
     }
 
     /*
