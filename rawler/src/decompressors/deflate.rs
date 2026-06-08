@@ -63,7 +63,10 @@ impl DeflateDecompressor {
         3 => 1,
         34894 => 2,
         34895 => 4,
-        _ => panic!("DeflateDecompressor: Unsupported predictor {predictor}"),
+        _ => {
+          log::warn!("DeflateDecompressor: unsupported predictor {}, using 1", predictor);
+          1
+        }
       };
     Self { pred_factor, bps }
   }
@@ -104,7 +107,7 @@ impl<'a> Decompressor<'a, f32> for DeflateDecompressor {
         16 => decode_fp_delta_row::<Binary16>(line, row, line_width),
         24 => decode_fp_delta_row::<Binary24>(line, row, line_width),
         32 => decode_fp_delta_row::<Binary32>(line, row, line_width),
-        _ => panic!("DeflateDecompressor: bps {} not supported", self.bps),
+        _ => return Err(format!("DeflateDecompressor: bps {} not supported", self.bps)),
       }
     }
     Ok(())

@@ -75,7 +75,7 @@ pub fn decode_ljpeg(ljpeg: &LjpegDecompressor, out: &mut [u16], x: usize, stripw
               (a + b) >> 1 // Adobe DNG SDK uses int32 and shifts, so we will do, too.
             }
             _ => {
-              panic!("Unsupported prediction in LJPEG")
+              return Err(format!("LJPEG: unsupported prediction mode {}", ljpeg.predictor()));
             }
           }
         };
