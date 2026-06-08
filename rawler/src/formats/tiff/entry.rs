@@ -87,7 +87,7 @@ impl Entry {
     // If we don't know the type assume byte data (undefined)
     let compat_typ = if typ == 0 || typ > 12 { 7 } else { typ };
 
-    let bytesize: usize = (count as usize) << DATASHIFTS[compat_typ as usize];
+    let bytesize: usize = (count as usize).saturating_shl(DATASHIFTS[compat_typ as usize] as u32);
     let offset: u32 = if bytesize <= 4 {
       reader.position()? - base
     } else {
@@ -144,7 +144,7 @@ impl Entry {
         }
       }
       TYPE_RATIONAL => {
-        let mut tmp = vec![0; count as usize * 2]; // Rational is 2x u32
+        let mut tmp = vec![0; (count as usize).saturating_mul(2)]; // Rational is 2x u32
         reader.read_u32_into(&mut tmp)?;
 
         let mut v = Vec::with_capacity(count as usize);
