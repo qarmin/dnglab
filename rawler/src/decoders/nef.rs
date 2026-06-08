@@ -424,16 +424,21 @@ impl<'a> NefDecoder<'a> {
       Ok([levels.force_f32(0), 1.0, 1.0, levels.force_f32(1)])
     } else if let Some(levels) = self.makernote.get_entry(TiffCommonTag::NrwWB) {
       let data = levels.get_data();
-      if data[0..3] == b"NRW"[..] {
-        let offset = if data[4..8] == b"0100"[..] { 1556 } else { 56 };
+      if data.len() >= 3 && data[0..3] == b"NRW"[..] {
+        let offset = if data.len() >= 8 && data[4..8] == b"0100"[..] { 1556 } else { 56 };
+        if data.len() < offset + 16 {
+          return Ok([f32::NAN, f32::NAN, f32::NAN, f32::NAN]);
+        }
         Ok([
           (LEu32(data, offset) << 2) as f32,
           (LEu32(data, offset + 4) + LEu32(data, offset + 8)) as f32,
           (LEu32(data, offset + 4) + LEu32(data, offset + 8)) as f32,
           (LEu32(data, offset + 12) << 2) as f32,
         ])
-      } else {
+      } else if data.len() >= 1252 {
         Ok([BEu16(data, 1248) as f32, 256.0, 256.0, BEu16(data, 1250) as f32])
+      } else {
+        Ok([f32::NAN, f32::NAN, f32::NAN, f32::NAN])
       }
     } else if let Some(levels) = self.makernote.get_entry(TiffCommonTag::NefWB1) {
       let mut version: u32 = 0;
