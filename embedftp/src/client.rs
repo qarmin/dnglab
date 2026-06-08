@@ -165,8 +165,12 @@ where
         self.send(Answer::new(ResultCode::SystemType, "UNIX Type: L8")).await?;
       }
       Command::Type(typ) => {
-        self.transfer_type = typ;
-        self.send(Answer::new(ResultCode::Ok, "Transfer type changed successfully")).await?;
+        if self.is_logged() {
+          self.transfer_type = typ;
+          self.send(Answer::new(ResultCode::Ok, "Transfer type changed successfully")).await?;
+        } else {
+          self.send(Answer::new(ResultCode::NotLoggedIn, "Please authenticate first")).await?;
+        }
       }
       Command::User(content) => {
         if content.is_empty() {
