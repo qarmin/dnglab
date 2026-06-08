@@ -34,15 +34,15 @@ impl FtpCallback for FtpState {
         let mut dng = BufWriter::new(File::create(out_path)?);
         convert_raw_source(&rawfile, &mut dng, original_filename, &self.params).map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))?;
         if self.params.keep_mtime {
-          if let Err(err) = copy_mtime_from_rawsource(
-            &rawfile,
-            &dng
-              .into_inner()
-              .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, format!("Can't access inner file: {e}")))?,
-            None,
-            &self.params,
-          ) {
-            log::warn!("Failed to set mtime, continue anyway: {}", err);
+          match dng.into_inner() {
+            Ok(inner) => {
+              if let Err(err) = copy_mtime_from_rawsource(&rawfile, &inner, None, &self.params) {
+                log::warn!("Failed to set mtime, continue anyway: {}", err);
+              }
+            }
+            Err(e) => {
+              log::warn!("Failed to flush DNG buffer for mtime, continue anyway: {}", e);
+            }
           }
         }
         return Ok(!self.keep_orig);
