@@ -41,7 +41,8 @@ impl SensorType {
     } else if cfa.width == 6 && cfa.height == 6 {
       Self::Xtrans
     } else {
-      unimplemented!()
+      log::warn!("SensorType::from_cfa(): unknown CFA pattern {}x{}, defaulting to Bayer", cfa.width, cfa.height);
+      Self::Bayer
     }
   }
 }
