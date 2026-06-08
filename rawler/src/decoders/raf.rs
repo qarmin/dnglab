@@ -230,13 +230,7 @@ impl<'a> RafDecoder<'a> {
     };
      */
 
-    let camera = match rawloader.check_supported(&ifd) {
-      Ok(camera) => camera,
-      Err(err) => {
-        log::debug!("Camera not found, trying without mode: {:?}", err);
-        rawloader.check_supported(&ifd)?
-      }
-    };
+    let camera = rawloader.check_supported(&ifd)?;
 
     let camera_compressed = rawloader.check_supported_with_mode(&ifd, "compressed").ok();
 
