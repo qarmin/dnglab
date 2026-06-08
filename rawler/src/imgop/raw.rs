@@ -102,11 +102,14 @@ fn correct_blacklevel_channels<const CH: usize>(raw: &mut [f32], blacklevel: &[f
   if CH == 1 {
     let max = max[0];
     let blacklevel = blacklevel[0];
+    if max == 0.0 { return; }
     raw.iter_mut().for_each(|p| *p = clip(*p - blacklevel) / max);
   } else {
     raw.chunks_exact_mut(CH).for_each(|block| {
       for i in 0..CH {
-        block[i] = clip(block[i] - blacklevel[i]) / max[i];
+        if max[i] != 0.0 {
+          block[i] = clip(block[i] - blacklevel[i]) / max[i];
+        }
       }
     });
   }
@@ -147,7 +150,9 @@ pub fn correct_blacklevel(raw: &mut [f32], blacklevel: &[f32], whitelevel: &[f32
         }
       });
     }
-    _ => panic!("Blacklevel ({}) and Whitelevel ({}) count mismatch", blacklevel.len(), whitelevel.len()),
+    _ => {
+      log::warn!("correct_blacklevel: blacklevel ({}) and whitelevel ({}) count mismatch, skipping", blacklevel.len(), whitelevel.len());
+    }
   }
 }
 
