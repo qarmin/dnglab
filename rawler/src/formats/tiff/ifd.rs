@@ -485,7 +485,9 @@ impl IFD {
   }
 
   pub fn singlestrip_data_rawsource<'a>(&self, rawsource: &'a RawSource) -> Result<&'a [u8]> {
-    assert!(self.contains_singlestrip_image());
+    if !self.contains_singlestrip_image() {
+      return Err(TiffError::General("IFD does not contain a single-strip image".into()));
+    }
 
     let offset = self
       .get_entry(TiffCommonTag::StripOffsets)
