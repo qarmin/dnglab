@@ -198,8 +198,9 @@ impl<'a> KdcDecoder<'a> {
     let img = image::load_from_memory_with_format(&swapped_src, image::ImageFormat::Jpeg)
       .map_err(|err| RawlerError::DecoderFailed(format!("Failed to read JPEG image: {:?}", err)))?;
 
-    assert_eq!(width, img.width() as usize);
-    assert_eq!(height, img.height() as usize * 2);
+    if width != img.width() as usize || height != img.height() as usize * 2 {
+      return Err(RawlerError::DecoderFailed(format!("KDC DC120 JPEG: size mismatch {}x{} vs {}x{}", width, height, img.width(), img.height() * 2)));
+    }
     let buf = img.as_flat_samples_u8().ok_or("KDC: failed to get u8 samples from JPEG")?;
     let jpeg = buf.as_slice();
 
