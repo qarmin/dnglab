@@ -1109,6 +1109,7 @@ impl<'a> IiqDecoder<'a> {
             }
 
             let pump_savepoint = pump.clone(); // savepoint for error recovery
+            let prev_pix_savepoint = prev_pix_value; // save prev_pix_value for recovery
             let x = pump.peek_bits(3) as usize; // 3 bits are max 7, so it's safe as array index
             pump.consume_bits(SV2_USED_CORR[x]);
 
@@ -1141,8 +1142,9 @@ impl<'a> IiqDecoder<'a> {
             // Check for decompressor errors
             if (check_val & ((1 << 14) - 1)) != check_val {
               warn!("Error in IIQ Sv2 decompressor, run error recovery");
-              // restore pump
+              // restore pump and prev_pix_value
               pump = pump_savepoint;
+              prev_pix_value = prev_pix_savepoint;
               for i in 0..8 {
                 let value = if bit_check[i & 1] == 9 {
                   // Just get the value straight out the bit pump
