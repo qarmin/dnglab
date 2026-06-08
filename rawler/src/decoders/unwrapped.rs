@@ -1,3 +1,4 @@
+use crate::RawlerError;
 use crate::bits::Endian;
 use crate::bits::*;
 use crate::buffer::PaddedBuf;
@@ -14,7 +15,7 @@ pub fn decode_unwrapped(file: &RawSource) -> Result<RawImageData> {
   let data = &buffer[6..];
 
   if width > 64 || height > 64 {
-    panic!("Trying an image larger than 64x64");
+    return Err(RawlerError::DecoderFailed(format!("Unwrapped: image {}x{} exceeds 64x64 limit", width, height)));
   }
 
   match decoder {
@@ -74,7 +75,7 @@ pub fn decode_unwrapped(file: &RawSource) -> Result<RawImageData> {
       let data = &data[10..];
 
       if length > 5000 {
-        panic!("Trying an SRF style image that's too big");
+        return Err(RawlerError::DecoderFailed(format!("Unwrapped: SRF image length {} exceeds limit 5000", length)));
       }
 
       let image_data = arw::ArwDecoder::sony_decrypt(data, 0, length, key)?;
