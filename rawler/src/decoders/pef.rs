@@ -294,7 +294,7 @@ impl<'a> PefDecoder<'a> {
         let mut sm_val: u32 = 0xfffffff;
         let mut sm_num: u32 = 0xff;
         for j in 0..depth {
-          if v2[j] <= sm_val {
+          if v2[j] < sm_val {
             sm_num = j as u32;
             sm_val = v2[j];
           }
