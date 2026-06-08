@@ -99,7 +99,7 @@ pub fn rawdb_ensure_file(rawdb_cache: &Path, make: &str, model: &str, subpath: &
 fn retry_delay(attempt: u32) -> Duration {
   match attempt {
     1 => Duration::from_secs(10),
-    n => Duration::from_secs(60u64.saturating_mul(1u64 << (n - 2))),
+    n => Duration::from_secs(60u64.saturating_mul(1u64.checked_shl(n - 2).unwrap_or(u64::MAX))),
   }
 }
 
