@@ -10,6 +10,7 @@ use std::ops::Not;
 use crate::Orientation;
 use crate::RawImage;
 use crate::RawLoader;
+use crate::RawlerError;
 use crate::Result;
 use crate::alloc_image_ok;
 use crate::analyze::FormatDump;
@@ -141,7 +142,9 @@ impl<'a> QtkDecoder<'a> {
   }
 
   pub fn decompress_quicktake_100(&self, src: &[u8], width: usize, height: usize, dummy: bool) -> Result<PixU16> {
-    assert!(width > height);
+    if width <= height {
+      return Err(RawlerError::DecoderFailed(format!("QTK: width {} must be greater than height {}", width, height)));
+    }
     let mut out = alloc_image_ok!(width, height, dummy);
     let mut pump = BitPumpMSB::new(src);
 
