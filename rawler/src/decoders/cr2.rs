@@ -803,6 +803,9 @@ fn normalize_wb(raw_wb: [f32; 4]) -> [f32; 4] {
   // We never have more then RGB colors so far (no RGBE etc.)
   // So we combine G1 and G2 to get RGB wb.
   let div = raw_wb[1]; // G1 should be 1024 and we use this as divisor
+  if !div.is_normal() || div == 0.0 {
+    return [f32::NAN, f32::NAN, f32::NAN, f32::NAN];
+  }
   let mut norm = raw_wb;
   norm.iter_mut().for_each(|v| {
     if v.is_normal() {
