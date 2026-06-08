@@ -462,7 +462,8 @@ fn normalize_wb(raw_wb: [f32; 4]) -> [f32; 4] {
       *v /= div
     }
   });
-  [norm[0], (norm[1] + norm[2]) / 2.0, norm[3], f32::NAN]
+  // ORF WB order is R, G1, B, G2; average both greens for the output G channel
+  [norm[0], (norm[1] + norm[3]) / 2.0, norm[2], f32::NAN]
 }
 
 crate::tags::tiff_tag_enum!(OrfMakernotes);
