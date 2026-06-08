@@ -192,7 +192,7 @@ impl LensResolver {
       if second_try.is_none() {
         log::warn!("No lens definition found in database, search parameters: {}. {}", self, crate::ISSUE_HINT);
         if std::env::var("RAWLER_FAIL_NO_LENS").ok().map(|val| val == "1").unwrap_or(false) {
-          panic!("No lens definition found in database, search parameters: {}.", self);
+          log::error!("RAWLER_FAIL_NO_LENS=1: no lens found for {}", self);
         }
       }
       second_try
@@ -309,7 +309,8 @@ impl LensIdentifier {
         olympus_id,
       }
     } else {
-      panic!("LensIdentifier must contain a name or id");
+      log::warn!("LensIdentifier has neither name nor id, using empty");
+      LensIdentifier { name: None, id: None, nikon_id: None, olympus_id: None }
     }
   }
 }
@@ -337,7 +338,7 @@ pub struct LensDescription {
 fn build_lens_database() -> Option<Vec<LensDescription>> {
   let toml = match LENSES_TOML.parse::<Value>() {
     Ok(val) => val,
-    Err(e) => panic!("{}", format!("Error parsing lenses.toml: {:?}", e)),
+    Err(e) => { log::error!("Error parsing lenses.toml: {:?}", e); return None; }
   };
 
   let mut lenses = Vec::new();

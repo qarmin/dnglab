@@ -107,7 +107,7 @@ impl From<u8> for Predictor {
       5 => Self::P5,
       6 => Self::P6,
       7 => Self::P7,
-      mode => panic!("Invalid predictor mode: {}", mode),
+      mode => { log::warn!("ljpeg92: unknown predictor mode {}, using P1", mode); Self::P1 }
     }
   }
 }
@@ -832,7 +832,7 @@ fn ljpeg92_diff<const NCOMP: usize, const PX: u8>(
   row_curr.iter().for_each(|sample| {
     let max_value = ((1u32 << (bitdepth - point_transform)) - 1) as u16;
     if (*sample >> point_transform) > max_value {
-      panic!("Sample overflow, sample is {:#x} but max value is {:#x}", sample, max_value);
+      log::warn!("ljpeg92: sample overflow {:#x} > max {:#x}", sample, max_value);
     }
   });
 

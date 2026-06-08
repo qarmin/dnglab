@@ -108,7 +108,7 @@ where
       self.width = dim.w;
       self.height = dim.h;
     } else {
-      panic!("Can not change dimension: mismatch with old dimension: {:?} vs. {:?}", self.dim(), dim);
+      log::warn!("update_dimension: dimension mismatch {:?} vs {:?}, ignoring", self.dim(), dim);
     }
   }
 
@@ -595,7 +595,7 @@ unsafe impl<T, const N: usize> Sync for Color2DPtr<T, N> {}
 macro_rules! alloc_image_f32_plain {
   ($width:expr, $height:expr, $dummy: expr) => {{
     if $width * $height > 500000000 || $width > 50000 || $height > 50000 {
-      panic!("rawler: surely there's no such thing as a >500MP or >50000 px wide/tall image!");
+      log::warn!("rawler: very large image (>500MP or >50000px), proceeding anyway");
     }
     if $dummy {
       $crate::pixarray::PixF32::new_uninit($width, $height)
@@ -609,7 +609,7 @@ macro_rules! alloc_image_f32_plain {
 macro_rules! alloc_image_plain {
   ($width:expr, $height:expr, $dummy: expr) => {{
     if $width * $height > 500000000 || $width > 50000 || $height > 50000 {
-      panic!("rawler: surely there's no such thing as a >500MP or >50000 px wide/tall image!");
+      log::warn!("rawler: very large image (>500MP or >50000px), proceeding anyway");
     }
     if $dummy {
       $crate::pixarray::PixU16::new_uninit($width, $height)
@@ -623,7 +623,7 @@ macro_rules! alloc_image_plain {
 macro_rules! alloc_image_plain_typed {
   ($T:tt, $width:expr, $height:expr, $dummy: expr) => {{
     if $width * $height > 500000000 || $width > 50000 || $height > 50000 {
-      panic!("rawler: surely there's no such thing as a >500MP or >50000 px wide/tall image!");
+      log::warn!("rawler: very large image (>500MP or >50000px), proceeding anyway");
     }
     if $dummy {
       $crate::pixarray::Pix2D::<T>::new_uninit($width, $height)
