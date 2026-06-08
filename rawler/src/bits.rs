@@ -341,9 +341,10 @@ pub(crate) fn extend_binary_floating_point<NARROW: FloatingPointParameters, WIDE
       // we have to shift fraction until we get 1.new_fraction
       // and decrement exponent for each shift.
       // FIXME; what is the implicit precondition here?
-      wide_exponent = (1 - NARROW::BIAS + WIDE::BIAS) as u32;
+      let exp_val = 1 - NARROW::BIAS + WIDE::BIAS;
+      wide_exponent = if exp_val < 0 { 0 } else { exp_val as u32 };
       while 0 == (wide_fraction & (1 << WIDE::FRACTION_WIDTH)) {
-        wide_exponent -= 1;
+        wide_exponent = wide_exponent.saturating_sub(1);
         wide_fraction <<= 1;
       }
       wide_fraction &= (1 << WIDE::FRACTION_WIDTH) - 1;
