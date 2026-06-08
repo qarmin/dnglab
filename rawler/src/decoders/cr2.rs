@@ -699,8 +699,9 @@ impl<'a> Cr2Decoder<'a> {
     image: &mut [u16],
     dummy: bool,
   ) -> Result<()> {
+    let sraw_wb = self.get_sraw_wb(rawfile, cam);
     debug!("YUV2RGB: Regular WB: {:?}", self.get_wb(rawfile, cam));
-    debug!("YUV2RGB: SRAW WB: {:?}", self.get_sraw_wb(rawfile, cam));
+    debug!("YUV2RGB: SRAW WB: {:?}", sraw_wb);
     debug!("Model ID: 0x{:X}", self.model_id.unwrap_or(0));
     if dummy {
       return Ok(());
@@ -714,7 +715,7 @@ impl<'a> Cr2Decoder<'a> {
       self.interpolate_yuv(ljpeg, width, height, image);
     }
 
-    let coeffs = self.get_sraw_wb(rawfile, cam)?;
+    let coeffs = sraw_wb?;
     let (c1, c2, c3) = if cam.find_hint("invert_sraw_wb") {
       let c1 = (1024.0 * 1024.0 / coeffs[0]) as i32;
       let c2 = coeffs[1] as i32;
