@@ -134,7 +134,8 @@ where
   W: Seek,
 {
   pub fn position(&mut self) -> Result<u32> {
-    Ok(self.writer.stream_position().map(|v| v as u32)?) // TODO: try_from?
+    let pos = self.writer.stream_position()?;
+    u32::try_from(pos).map_err(|_| TiffError::General(format!("TIFF writer position {} exceeds u32 maximum", pos)))
   }
 }
 
