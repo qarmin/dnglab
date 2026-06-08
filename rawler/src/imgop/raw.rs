@@ -172,10 +172,12 @@ pub fn correct_blacklevel_cfa(raw: &mut [f32], width: usize, _height: usize, bla
     if v.is_sign_negative() { 0.0 } else { v }
   };
   // Process two bayer lines at once.
-  raw.par_chunks_exact_mut(width * 2).for_each(|lines| {
-    // It's bayer data, so we have two lines for sure.
+  // Split to handle odd-height images: pairs get full 2-row bayer correction,
+  // any leftover single row gets treated as row 0 (R/G channels).
+  let even_len = (raw.len() / (width * 2)) * (width * 2);
+  let (pairs, last_row) = raw.split_at_mut(even_len);
+  pairs.par_chunks_exact_mut(width * 2).for_each(|lines| {
     let (line0, line1) = lines.split_at_mut(width);
-    //line0.array_chunks_mut::<2>().zip(line1.array_chunks_mut::<2>()).for_each(|(a, b)| {
     line0.chunks_exact_mut(2).zip(line1.chunks_exact_mut(2)).for_each(|(a, b)| {
       a[0] = clip(a[0] - blacklevel[0]) / max[0];
       a[1] = clip(a[1] - blacklevel[1]) / max[1];
@@ -183,6 +185,12 @@ pub fn correct_blacklevel_cfa(raw: &mut [f32], width: usize, _height: usize, bla
       b[1] = clip(b[1] - blacklevel[3]) / max[3];
     });
   });
+  if !last_row.is_empty() {
+    last_row.chunks_exact_mut(2).for_each(|a| {
+      a[0] = clip(a[0] - blacklevel[0]) / max[0];
+      a[1] = clip(a[1] - blacklevel[1]) / max[1];
+    });
+  }
 }
 
 #[multiversion(targets("x86_64+avx+avx2", "x86+sse", "aarch64+neon"))]
