@@ -177,7 +177,9 @@ fn new_makernote(file: &RawSource, moffset: u64) -> std::io::Result<HashMap<u32,
   // All makernote offsets are not absolute to file, but to start of makernote data.
   // The makernote data starts straight after the TIFF header (8 bytes).
   // If this may change in future, offsets must be revalidated.
-  assert_eq!(moffset, 8);
+  if moffset != 8 {
+    return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("IIQ: unexpected makernote offset {}, expected 8", moffset)));
+  }
   let stream = &mut file.reader();
   stream.seek(SeekFrom::Start(moffset + 8))?; // Skip first 8 bytes of makernote
   let ifd = stream.read_u32::<LittleEndian>()? as u64;
