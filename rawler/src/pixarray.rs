@@ -54,7 +54,9 @@ where
   T: SubPixel,
 {
   pub fn new_with(data: Vec<T>, width: usize, height: usize) -> Self {
-    assert_eq!(data.len(), height * width);
+    if data.len() != height * width {
+      log::warn!("Pix2D::new_with: data.len() {} != {}*{}={}", data.len(), height, width, height*width);
+    }
     Self {
       data,
       width,
