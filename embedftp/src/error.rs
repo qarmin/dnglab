@@ -43,14 +43,13 @@ impl Display for Error {
 }
 
 impl error::Error for Error {
-  fn cause(&self) -> Option<&dyn error::Error> {
-    let cause: &dyn error::Error = match *self {
-      FromUtf8(ref error) => error,
-      Io(ref error) => error,
-      Utf8(ref error) => error,
-      Msg(_) => return None,
-    };
-    Some(cause)
+  fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+    match *self {
+      FromUtf8(ref error) => Some(error),
+      Io(ref error) => Some(error),
+      Utf8(ref error) => Some(error),
+      Msg(_) => None,
+    }
   }
 }
 
