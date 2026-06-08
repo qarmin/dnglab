@@ -243,7 +243,9 @@ impl Jfif {
         _ => {
           log::debug!("Unhandled JFIF segment marker: {:X}", symbol);
           let len: u64 = reader.read_u16::<BigEndian>()? as u64;
-          reader.seek(SeekFrom::Current(len as i64 - 2))?;
+          if len >= 2 {
+            reader.seek(SeekFrom::Current(len as i64 - 2))?;
+          }
 
           Segment::Unknown { offset: pos, marker: symbol }
         }
