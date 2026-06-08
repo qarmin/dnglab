@@ -115,14 +115,8 @@ pub trait TiffReader {
     if ifds.is_empty() { None } else { Some(ifds[0]) }
   }
 
-  fn get_first_entry(&self, _tag: u16) -> Option<Entry> {
-    unimplemented!();
-    /*
-    Some(Entry {
-      value: (32 as u16).into(),
-      embedded: None,
-    })
-     */
+  fn get_first_entry(&self, tag: u16) -> Option<Entry> {
+    self.root_ifd().get_entry(tag).cloned()
   }
 
   fn read_data<R: Read + Seek>(&self, file: &mut R, uncorr_offset: u32, buffer: &mut [u8]) -> Result<()> {
