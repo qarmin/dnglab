@@ -62,7 +62,7 @@ impl<R: Read + Seek> ReadBox<&mut R> for StscBox {
       for _ in 1..entry_count {
         let mut entry = read_entry()?;
         // Now we know the chunk count to calc the amount of samples in holdback
-        entry.first_sample = holdback.first_sample + ((entry.first_chunk - holdback.first_sample) * holdback.samples_per_chunk);
+        entry.first_sample = holdback.first_sample + ((entry.first_chunk - holdback.first_chunk) * holdback.samples_per_chunk);
         entries.push(holdback);
         holdback = entry;
       }
