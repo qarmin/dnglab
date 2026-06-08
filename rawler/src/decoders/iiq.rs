@@ -802,7 +802,9 @@ impl<'a> IiqDecoder<'a> {
           match tag {
             0x0400 => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert_eq!(len % 4, 0);
+              if len % 4 != 0 {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("IIQ: defect list length {} not a multiple of 4", len)));
+              }
               let mut defect_list = Vec::new();
               for _ in 0..(len / 4) {
                 let col = stream.read_u16::<LittleEndian>()? as usize;
@@ -837,7 +839,9 @@ impl<'a> IiqDecoder<'a> {
 
             0x0419 => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert!(len as usize >= 8 * size_of::<f32>());
+              if (len as usize) < 8 * size_of::<f32>() {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("IIQ: poly_curve_half tag too short: {}", len)));
+              }
               let mut data = [f32::NAN; 8];
               for entry in data.iter_mut() {
                 *entry = stream.read_f32::<LittleEndian>()?;
@@ -846,7 +850,9 @@ impl<'a> IiqDecoder<'a> {
             }
             0x041a => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert_eq!(len as usize, 4 * size_of::<f32>());
+              if (len as usize) < 4 * size_of::<f32>() {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("IIQ: poly_curve_full tag too short: {}", len)));
+              }
               let mut data = [f32::NAN; 4];
               for entry in data.iter_mut() {
                 *entry = stream.read_f32::<LittleEndian>()?;
@@ -855,7 +861,10 @@ impl<'a> IiqDecoder<'a> {
             }
             0x041f => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert_eq!(len as usize, 2 * 2 * 16 * size_of::<u32>() + 4); // there is an extra value...
+              let expected_len = 2 * 2 * 16 * size_of::<u32>() + 4;
+              if (len as usize) < expected_len {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, format!("IIQ: quadrant_linearization tag too short: {}", len)));
+              }
               let mut data = vec![0_u16; 2 * 2 * 16];
               for entry in data.iter_mut() {
                 *entry = stream.read_u32::<LittleEndian>()? as u16;
