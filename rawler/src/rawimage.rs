@@ -284,7 +284,9 @@ impl RawImage {
     if x == 0 {
       return None;
     }
-    assert!(!image.is_empty());
+    if image.is_empty() {
+      return None;
+    }
 
     #[derive(Clone, Copy)]
     struct Sample {
