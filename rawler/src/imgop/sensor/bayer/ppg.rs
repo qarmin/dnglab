@@ -39,7 +39,8 @@ impl Demosaic<f32, 3> for PPGDemosaic {
   fn demosaic(&self, pixels: &PixF32, cfa: &CFA, _colors: &PlaneColor, roi: Rect) -> Color2D<f32, 3> {
     // PPG can only applied to pure RGGB or variants.
     if !cfa.is_rgb() {
-      panic!("CFA pattern '{}' is not a RGB pattern, can not demosaic with PPG", cfa);
+      log::error!("CFA pattern '{}' is not a RGB pattern, can not demosaic with PPG", cfa);
+      return Color2D::new(0, 0);
     }
     // Measure time
     let now = Instant::now();

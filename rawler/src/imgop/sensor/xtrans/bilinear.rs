@@ -48,7 +48,8 @@ impl Demosaic<f32, 3> for XTransBilinearDemosaic {
   #[allow(unused)]
   fn demosaic(&self, pixels: &PixF32, cfa: &CFA, colors: &PlaneColor, roi: Rect) -> Color2D<f32, 3> {
     if !cfa.is_rgb() {
-      panic!("CFA pattern '{}' is not a RGB pattern, can not demosaic", cfa);
+      log::error!("CFA pattern '{}' is not a RGB pattern, can not demosaic with X-Trans bilinear", cfa);
+      return Color2D::new(0, 0);
     }
     let now = Instant::now();
     let rgb = interpolate_bilinear(pixels, cfa, roi);
