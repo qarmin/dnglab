@@ -57,15 +57,15 @@ impl DeflateDecompressor {
   ///
   /// # Panics
   /// Panics for any `predictor` value other than 3, 34894, and 34895
-  pub fn new(cpp: usize, predictor: u16, bps: u32) -> Self {
+  pub fn new(cpp: usize, predictor: u16, bps: u32) -> Result<Self, String> {
     let pred_factor = cpp
       * match predictor {
         3 => 1,
         34894 => 2,
         34895 => 4,
-        _ => panic!("DeflateDecompressor: Unsupported predictor {predictor}"),
+        _ => return Err(format!("DeflateDecompressor: unsupported predictor {predictor}")),
       };
-    Self { pred_factor, bps }
+    Ok(Self { pred_factor, bps })
   }
 }
 
@@ -91,7 +91,9 @@ impl<'a> Decompressor<'a, f32> for DeflateDecompressor {
     decoder.read_to_end(&mut decoded_data).map_err(|err| err.to_string())?;
 
     let bytesps = self.bps as usize / 8;
-    assert!(bytesps >= 2 && bytesps <= 4);
+    if bytesps < 2 || bytesps > 4 {
+      return Err(format!("DeflateDecompressor: bps {} not supported", self.bps));
+    }
     if decoded_data.len() != bytesps * line_width * lines.len() {
       return Err(format!("DeflateDecompressor: buffer length mismatch"));
     }
@@ -104,7 +106,7 @@ impl<'a> Decompressor<'a, f32> for DeflateDecompressor {
         16 => decode_fp_delta_row::<Binary16>(line, row, line_width),
         24 => decode_fp_delta_row::<Binary24>(line, row, line_width),
         32 => decode_fp_delta_row::<Binary32>(line, row, line_width),
-        _ => panic!("DeflateDecompressor: bps {} not supported", self.bps),
+        _ => return Err(format!("DeflateDecompressor: bps {} not supported", self.bps)),
       }
     }
     Ok(())

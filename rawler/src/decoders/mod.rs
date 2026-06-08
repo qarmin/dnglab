@@ -679,7 +679,7 @@ pub fn plain_image_from_ifd(ifd: &IFD, rawsource: &RawSource) -> Result<RawImage
         (CompressionMethod::None, DataMode::Tiles) => decode_tiles::<f32>(rawsource, ifd, PackedDecompressor::new(bits, endian), dummy)?,
         (CompressionMethod::Deflate, DataMode::Tiles) => {
           let predictor = fetch_tiff_tag!(ifd, TiffCommonTag::Predictor).force_u16(0);
-          decode_tiles::<f32>(rawsource, ifd, DeflateDecompressor::new(cpp, predictor, bits), dummy)?
+          decode_tiles::<f32>(rawsource, ifd, DeflateDecompressor::new(cpp, predictor, bits).map_err(RawlerError::DecoderFailed)?, dummy)?
         }
         _ => {
           return Err(RawlerError::DecoderFailed(format!(
