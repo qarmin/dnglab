@@ -9,6 +9,7 @@ use itertools::Itertools;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::{
+  RawlerError,
   alloc_image_ok,
   bits::{Endian, clamp},
   decoders::{Result, rw2::PanasonicTag},
@@ -371,10 +372,10 @@ pub(crate) fn decode_panasonic_v8(rawfile: &RawSource, width: usize, height: usi
   let params = CF2Params::new(ifd)?;
   log::debug!("pana8: params: {:?}", params);
 
-  assert_eq!(
-    params.strip_widths.iter().map(|x| *x as i32).sum::<i32>() as usize / params.num_of_strips_v as usize,
-    width
-  );
+  let computed_width = params.strip_widths.iter().map(|x| *x as i32).sum::<i32>() as usize / params.num_of_strips_v as usize;
+  if computed_width != width {
+    return Err(RawlerError::DecoderFailed(format!("RW2 v8: strip widths imply {} but image width is {}", computed_width, width)));
+  }
 
   // Shared output buffer, we need to write from multiple rayon threads to output image.
   let shared_pix = SharedPix2D::new(out);
@@ -421,7 +422,9 @@ fn decode_strip(buf: &[u8], params: &CF2Params, strip_id: usize, out: &mut PixU1
       // Shiftdown seems to be the count of bits shifted to right during encoding.
       // It's 0 for all existing samples so far, highly interested in samples that has
       let shift_down: u8 = (params.huf_shift_down[ssss as usize] & 0x1F) as u8;
-      assert_eq!(shift_down, 0, "CF2HufShiftDown samples required");
+      if shift_down != 0 {
+        log::warn!("RW2 v8: non-zero CF2HufShiftDown {} not yet supported, decoding may be incorrect", shift_down);
+      }
 
       // Calculate total required bits to read from bitstream.
       let req_bits: u32 = ssss.saturating_sub(shift_down as u8) as u32;
@@ -473,7 +476,10 @@ fn decode_strip(buf: &[u8], params: &CF2Params, strip_id: usize, out: &mut PixU1
 
     // Copy line buffer into output image.
     // Line buffer contains two rows packed into one row with double width.
-    assert_eq!(linebuf.len(), 2 * width);
+    if linebuf.len() != 2 * width {
+      log::warn!("RW2 v8: linebuf length {} != 2*width {}", linebuf.len(), 2 * width);
+      return;
+    }
     for col in (0..width).step_by(2) {
       let row_offset = params.strip_line_offsets[strip_id].rows as usize;
       let left_margin = params.strip_line_offsets[strip_id].cols as usize;
