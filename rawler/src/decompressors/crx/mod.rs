@@ -150,8 +150,9 @@ impl CodecParams {
     let tile_cols: usize = cmp1.f_width.div_ceil(cmp1.tile_width) as usize;
     let tile_rows: usize = cmp1.f_height.div_ceil(cmp1.tile_height) as usize;
 
-    assert!(tile_cols > 0);
-    assert!(tile_rows > 0);
+    if tile_cols == 0 || tile_rows == 0 {
+      return Err(CrxError::General(format!("CRX: zero tile count: cols={}, rows={}", tile_cols, tile_rows)));
+    }
 
     let params = Self {
       sample_precision: cmp1.n_bits as u8 + INCR_BIT_TABLE[4 * cmp1.enc_type as usize + 2] + 1,
