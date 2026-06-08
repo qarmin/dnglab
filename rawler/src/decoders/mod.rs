@@ -667,7 +667,9 @@ pub fn plain_image_from_ifd(ifd: &IFD, rawsource: &RawSource) -> Result<RawImage
           // Make sure pixbuf is properly cropped (e.g. LJPEG padding)
           pixbuf = deinterleave2x2(&pixbuf)?;
         }
-        _ => todo!(),
+        (row_ilf, col_ilf) => {
+          return Err(RawlerError::DecoderFailed(format!("DNG: unsupported interleave factor row={}/col={}", row_ilf, col_ilf)));
+        }
       }
       return Ok(RawImageData::Integer(pixbuf.into_inner()));
     }
@@ -816,7 +818,7 @@ pub(crate) fn apply_linearization(image: &mut PixU16, tbl: &Value, bits: u32) {
       });
     }
     _ => {
-      panic!("Unsupported linear table");
+      log::warn!("apply_linearization: unsupported linear table type {:?}, skipping", tbl);
     }
   }
 }
