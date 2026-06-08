@@ -284,7 +284,7 @@ impl RawImage {
     if x == 0 {
       return None;
     }
-    assert!(!image.is_empty());
+    if image.is_empty() { return None; }
 
     #[derive(Clone, Copy)]
     struct Sample {
@@ -328,8 +328,12 @@ impl RawImage {
     whitelevel: Option<WhiteLevel>,
     dummy: bool,
   ) -> RawImage {
-    assert_eq!(image.width % cpp, 0);
-    assert_eq!(dummy, !image.is_initialized());
+    if cpp > 0 && image.width % cpp != 0 {
+      log::warn!("RawImage::new: image.width {} not divisible by cpp {}", image.width, cpp);
+    }
+    if dummy != !image.is_initialized() {
+      log::warn!("RawImage::new: dummy/initialized state mismatch");
+    }
     let sample_width = image.width;
     let pixel_width = image.width / cpp;
 
@@ -501,7 +505,8 @@ impl RawImage {
     if let RawImageData::Integer(data) = &self.data {
       data
     } else {
-      panic!("Data ist not u16");
+      log::error!("pixels_u16(): called on non-integer data, this is a programming error");
+      panic!("pixels_u16() called on non-integer data");
     }
   }
 
@@ -509,7 +514,8 @@ impl RawImage {
     if let RawImageData::Integer(data) = &mut self.data {
       data
     } else {
-      panic!("Data ist not u16");
+      log::error!("pixels_u16(): called on non-integer data, this is a programming error");
+      panic!("pixels_u16() called on non-integer data");
     }
   }
 
