@@ -183,12 +183,17 @@ impl<'a> Decoder for ArwDecoder<'a> {
       _ => return Err(RawlerError::DecoderFailed(format!("ARW: Don't know how to decode type {}", compression))),
     };
 
-    let blacklevel = black.map(|black| match cpp {
-      1 => BlackLevel::new(&black, self.camera.cfa.width, self.camera.cfa.height, cpp),
-      // For YUV data, the blacklevel needs to be multiplicated by 2
-      3 => BlackLevel::new(&[black[0] * 2, black[0] * 2, black[0] * 2], 1, 1, cpp),
-      _ => panic!("Unsupported cpp == {}", cpp),
-    });
+    let blacklevel = if let Some(black) = black {
+      let bl = match cpp {
+        1 => BlackLevel::new(&black, self.camera.cfa.width, self.camera.cfa.height, cpp),
+        // For YUV data, the blacklevel needs to be multiplicated by 2
+        3 => BlackLevel::new(&[black[0] * 2, black[0] * 2, black[0] * 2], 1, 1, cpp),
+        _ => return Err(RawlerError::DecoderFailed(format!("ARW: unsupported cpp {} for blacklevel", cpp))),
+      };
+      Some(bl)
+    } else {
+      None
+    };
     let whitelevel = white.map(|white| WhiteLevel(vec![white as u32; cpp]));
 
     let photometric = match cpp {
@@ -339,7 +344,9 @@ impl<'a> ArwDecoder<'a> {
     // DNGPrivateTag contains 4 bytes forming a LE u32 offset value.
     let priv_offset = {
       let entry = fetch_tiff_tag!(self.tiff, TiffCommonTag::DNGPrivateArea);
-      assert_eq!(entry.value_type(), 0x1);
+      if entry.value_type() != 0x1 {
+        return Err(RawlerError::DecoderFailed(format!("ARW A100: DNGPrivateArea has unexpected type 0x{:x}", entry.value_type())));
+      }
       LEu32(entry.get_data(), 0)
     };
     let buf = file.subview_until_eof(priv_offset as u64)?;
