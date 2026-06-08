@@ -882,7 +882,7 @@ impl Value {
             | ((*v.get(3).unwrap_or(&0) as u32) << 24),
         ),
         _ => {
-          panic!("unsupported: {:?}", self);
+          return Err(TiffError::General(format!("as_embedded(): unsupported value type {:?}", self.value_type_name())));
         }
       }
     }
