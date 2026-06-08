@@ -159,7 +159,7 @@ where
       if let Some(first_key) = available_matrices.keys().next().cloned() {
         let first_matrix = available_matrices
           .remove_entry(&Illuminant::A)
-          .or_else(|| available_matrices.remove_entry(&Illuminant::A))
+          .or_else(|| available_matrices.remove_entry(&Illuminant::D65))
           .or_else(|| available_matrices.remove_entry(&first_key))
           .expect("No matrix found");
         self
@@ -341,7 +341,7 @@ where
     let now = Instant::now();
     let offset = self.writer.dng.position()?;
     // TODO: improve offsets?
-    let jpeg_encoder = JpegEncoder::new_with_quality(&mut self.writer.dng.writer, (quality * 100.0).max(100.0) as u8);
+    let jpeg_encoder = JpegEncoder::new_with_quality(&mut self.writer.dng.writer, (quality * 100.0).min(100.0) as u8);
     preview_img
       .write_with_encoder(jpeg_encoder)
       .map_err(|err| io::Error::new(io::ErrorKind::Other, format!("Failed to write jpeg preview: {:?}", err)))?;
