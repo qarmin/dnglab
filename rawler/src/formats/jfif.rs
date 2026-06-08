@@ -167,6 +167,8 @@ impl<R: Read + Seek> ReadSegment<&mut R> for App1 {
           });
         }
 
+        // Seek to end of segment before returning error to keep stream position consistent
+        reader.seek(SeekFrom::Start(pos + len))?;
         return Err(JfifError::General("Failed to read exif".into()));
       } else {
         reader.seek(SeekFrom::Current(-(exif_str.len() as i64)))?;
