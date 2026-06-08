@@ -177,7 +177,9 @@ fn unpack_generic_msb<'a>(lines: impl LineIteratorMut<'a, u16>, src: &[u8], skip
   if src.len() < need {
     return Err(format!("unpack_generic_msb(): buffer too short ({} < {})", src.len(), need));
   }
-  assert!(bits <= 16);
+  if bits > 16 {
+    return Err(format!("unpack_generic_msb: bits={} > 16 not supported", bits));
+  }
   let skip_bits = skip_rows * width * bits as usize;
   let offset = skip_bits / 8;
   let bias = skip_bits % 8;
@@ -1309,7 +1311,9 @@ pub(crate) fn decompress_16be(buf: &[u8], width: usize, height: usize, dummy: bo
 /// ```
 #[multiversion(targets("x86_64+avx+avx2+fma", "x86+sse", "aarch64+neon"))]
 pub(crate) fn decompress_generic_msb(buf: &[u8], width: usize, height: usize, bits: u32, dummy: bool) -> std::result::Result<PixU16, String> {
-  assert!(bits <= 16);
+  if bits > 16 {
+    return Err(format!("decompress_generic_msb: bits={} > 16 not supported", bits));
+  }
   let need = (width * height * bits as usize).div_ceil(8);
   if buf.len() < need {
     return Err(format!("decompress_generic_msb(): buffer too short ({} < {})", buf.len(), need));
@@ -1336,7 +1340,9 @@ pub(crate) fn decompress_generic_msb(buf: &[u8], width: usize, height: usize, bi
 /// ```
 #[multiversion(targets("x86_64+avx+avx2+fma", "x86+sse", "aarch64+neon"))]
 pub(crate) fn decompress_generic_lsb(buf: &[u8], width: usize, height: usize, bits: u32, dummy: bool) -> std::result::Result<PixU16, String> {
-  assert!(bits <= 16);
+  if bits > 16 {
+    return Err(format!("decompress_generic_lsb: bits={} > 16 not supported", bits));
+  }
   let need = (width * height * bits as usize).div_ceil(8);
   if buf.len() < need {
     return Err(format!("decompress_generic_lsb(): buffer too short ({} < {})", buf.len(), need));
