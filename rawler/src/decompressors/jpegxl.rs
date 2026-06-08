@@ -52,7 +52,6 @@ impl<'a> Decompressor<'a, u16> for JpegXLDecompressor {
         // This breaks blacklevel scaling. We need to scale back to given bps (from TIFF).
         unimplemented!("JPEG-XL bit-depth {} not supported yet", header.bit_depth.bits_per_sample());
       }
-      //eprintln!("JPEG-XL Bit-Depth: {:?}", header.bit_depth);
     }
     let frame = image.render_frame(0).map_err(|err| format!("Failed to render JPEG-XL image: {:?}", err))?;
 
@@ -89,18 +88,6 @@ impl<'a> Decompressor<'a, u16> for JpegXLDecompressor {
       _ => unimplemented!(),
     }
 
-    /*
-    let all_ch = frame.image_all_channels();
-
-    let pixbuf = all_ch.buf();
-    for (line, buf) in lines.zip(pixbuf.chunks_exact(line_width).skip(skip_rows)) {
-      for (p, f) in line.iter_mut().zip(buf.iter()) {
-        //debug_assert!(*f <= (1.0 + f32::EPSILON));
-        // *p = (f * u16::MAX as f32) as u16;
-        // *p = *f as u16;
-      }
-    }
-    */
     Ok(())
   }
 
