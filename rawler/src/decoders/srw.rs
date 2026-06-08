@@ -100,7 +100,9 @@ impl<'a> Decoder for SrwDecoder<'a> {
         },
         Some(x) => {
           let coffset = x.force_usize(0);
-          assert!(coffset > 0, "Surely this can't be the start of the file");
+          if coffset == 0 {
+            return Err(RawlerError::DecoderFailed("SRW: coffset is 0, invalid file offset".into()));
+          }
           let loffsets = file.subview_until_eof(coffset as u64)?;
           SrwDecoder::decode_srw1(&src, loffsets, width, height, dummy)
         }
@@ -370,7 +372,7 @@ impl<'a> SrwDecoder<'a> {
         }
 
         if row < 2 && motion != 7 {
-          panic!("SRW Decoder: At start of image and motion isn't 7. File corrupted?")
+          log::warn!("SRW: row<2 but motion={}, file may be corrupted", motion);
         }
 
         if motion == 7 {
@@ -382,7 +384,8 @@ impl<'a> SrwDecoder<'a> {
         } else {
           // The complex case, we now need to actually lookup one or two lines above
           if row < 2 {
-            panic!("SRW: Got a previous line lookup on first two lines. File corrupted?");
+            log::warn!("SRW: previous line lookup on first two rows, file may be corrupted");
+            continue;
           }
           let motion_offset: [isize; 7] = [-4, -2, -2, 0, 0, 2, 4];
           let motion_average: [i32; 7] = [0, 0, 1, 0, 1, 0, 0];
@@ -434,7 +437,8 @@ impl<'a> SrwDecoder<'a> {
             diff_bits_mode[colornum][0] = diff_bits_mode[colornum][1];
             diff_bits_mode[colornum][1] = diff_bits[i];
             if diff_bits[i] > bit_depth + 1 {
-              panic!("SRW Decoder: Too many difference bits. File corrupted?");
+              log::warn!("SRW: diff_bits[{}]={} > bit_depth+1={}, clamping to 0", i, diff_bits[i], bit_depth + 1);
+              diff_bits[i] = 0;
             }
           }
         }
