@@ -76,8 +76,6 @@ pub enum ProcessingStep {
   SRgb,
 }
 
-pub struct RawDevelopBuilder {}
-
 #[derive(Clone)]
 pub enum Intermediate {
   Monochrome(PixF32),
