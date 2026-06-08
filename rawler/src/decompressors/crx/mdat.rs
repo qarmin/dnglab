@@ -331,7 +331,7 @@ impl Subband {
     if row < self.row_start_addon {
       0
     } else if row < self.height - self.row_end_addon {
-      row - self.row_end_addon
+      row - self.row_start_addon
     } else {
       self.height - self.row_end_addon - self.row_start_addon - 1
     }
