@@ -603,9 +603,11 @@ impl<'a> RafDecoder<'a> {
       let x = active_area[0];
       let y = active_area[1];
       let cropwidth = width - active_area[2] - x;
-      let cropheight = height - active_area[3] - y; // TODO: bug, invalid order of crop index
+      let cropheight = height - active_area[3] - y;
 
-      assert_eq!(alt_layout, camera.find_hint("fuji_rotation_alt"));
+      if alt_layout != camera.find_hint("fuji_rotation_alt") {
+        return Err(RawlerError::DecoderFailed("RAF: alt_layout mismatch with fuji_rotation_alt hint".to_string()));
+      }
 
       if camera.find_hint("fuji_rotation_alt") {
         let rotatedwidth = cropheight + cropwidth / 2;
