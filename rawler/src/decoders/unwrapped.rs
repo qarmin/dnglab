@@ -14,7 +14,7 @@ pub fn decode_unwrapped(file: &RawSource) -> Result<RawImageData> {
   let data = &buffer[6..];
 
   if width > 64 || height > 64 {
-    panic!("Trying an image larger than 64x64");
+    return Err(RawlerError::DecoderFailed(format!("Trying an image larger than 64x64: {}x{}", width, height)));
   }
 
   match decoder {
@@ -74,7 +74,7 @@ pub fn decode_unwrapped(file: &RawSource) -> Result<RawImageData> {
       let data = &data[10..];
 
       if length > 5000 {
-        panic!("Trying an SRF style image that's too big");
+        return Err(RawlerError::DecoderFailed(format!("SRF style image too big: length={}", length)));
       }
 
       let image_data = arw::ArwDecoder::sony_decrypt(data, 0, length, key)?;
