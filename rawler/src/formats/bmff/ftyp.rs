@@ -26,6 +26,9 @@ impl<R: Read + Seek> ReadBox<&mut R> for FtypBox {
     if header.size % 4 != 0 {
       return Err(BmffError::Parse("invalid ftyp size".into()));
     }
+    if header.size < 16 {
+      return Err(BmffError::Parse("ftyp box too small".into()));
+    }
     let brand_count = (header.size - 16) / 4; // header + major + minor
 
     let mut brands = Vec::new();

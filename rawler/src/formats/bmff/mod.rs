@@ -71,6 +71,9 @@ impl BoxHeader {
     let start = reader.stream_position()?;
     let mut size = reader.read_u32::<BigEndian>()? as u64;
     let typ = reader.read_u32::<BigEndian>()?.into();
+    if size == 0 {
+      return Err(BmffError::Parse("BMFF box with size=0 (EOF sentinel) is not supported".into()));
+    }
     if size == 1 {
       size = reader.read_u64::<BigEndian>()?;
     }
