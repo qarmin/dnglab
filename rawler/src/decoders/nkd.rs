@@ -25,6 +25,9 @@ impl<'a> Decoder for NakedDecoder<'a> {
     let buffer = &data;
     let width = self.camera.raw_width;
     let height = self.camera.raw_height;
+    if width == 0 || height == 0 {
+      return Err(RawlerError::DecoderFailed("Naked: invalid zero image dimension".to_string()));
+    }
     let size = self.camera.filesize;
     let bits = size * 8 / width / height;
 
