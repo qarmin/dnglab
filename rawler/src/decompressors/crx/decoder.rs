@@ -732,7 +732,7 @@ fn integrate_cfa(codec: &CodecParams, tiles: &[Tile], cfa_buf: &mut [u16], tile_
   let tile_col_idx = tile_id % codec.tile_cols; // round down
 
   // Offset from top
-  let row_offset = tile_row_idx * codec.tile_width;
+  let row_offset = tile_row_idx * codec.tile_height;
   // Offset from left
   let col_offset = tile_col_idx * codec.tile_width;
   let (row_shift, col_shift) = match plane_id {
