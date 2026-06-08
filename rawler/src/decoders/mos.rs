@@ -69,7 +69,7 @@ impl<'a> Decoder for MosDecoder<'a> {
   }
 
   fn format_dump(&self) -> FormatDump {
-    todo!()
+    crate::analyze::FormatDump::Unknown
   }
 
   fn raw_metadata(&self, _file: &RawSource, _params: &RawDecodeParams) -> Result<RawMetadata> {

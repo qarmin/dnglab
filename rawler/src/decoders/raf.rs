@@ -392,7 +392,7 @@ impl<'a> Decoder for RafDecoder<'a> {
         image.add_dng_tag(DngTag::CFALayout, 2_u16);
         image.add_dng_tag(TiffCommonTag::CFAPattern, &[0_u8, 1, 2, 1, 2, 1, 0, 1][..]);
 
-        todo!();
+        // BlackLevel DNG tags not yet implemented for Fuji rotation
         //image.add_dng_tag(DngTag::BlackLevel, image.blacklevel[0]);
         //image.add_dng_tag(DngTag::BlackLevelRepeatDim, [1_u16, 1_u16]);
       }
@@ -483,7 +483,7 @@ impl<'a> Decoder for RafDecoder<'a> {
   }
 
   fn format_dump(&self) -> FormatDump {
-    todo!()
+    crate::analyze::FormatDump::Unknown
   }
 
   fn format_hint(&self) -> FormatHint {

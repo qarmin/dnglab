@@ -194,7 +194,7 @@ impl<'a> Decoder for ArwDecoder<'a> {
     let photometric = match cpp {
       1 => RawPhotometricInterpretation::Cfa(CFAConfig::new_from_camera(&self.camera)),
       3 => RawPhotometricInterpretation::LinearRaw,
-      _ => todo!(),
+      _ => return Err(RawlerError::DecoderFailed(format!("ARW: unsupported cpp {}", cpp))),
     };
 
     let mut img = RawImage::new(self.camera.clone(), image, cpp, params.wb, photometric, blacklevel, whitelevel, dummy);
@@ -239,7 +239,7 @@ impl<'a> Decoder for ArwDecoder<'a> {
   }
 
   fn format_dump(&self) -> crate::analyze::FormatDump {
-    todo!()
+    crate::analyze::FormatDump::Unknown
   }
 
   fn raw_metadata(&self, _file: &RawSource, _params: &RawDecodeParams) -> Result<RawMetadata> {
