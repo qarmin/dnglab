@@ -221,15 +221,6 @@ impl<'a> RafDecoder<'a> {
   pub fn new(file: &RawSource, rawloader: &'a RawLoader) -> Result<RafDecoder<'a>> {
     let ifd = parse_raf(file)?;
 
-    /*
-    let mode = match get_compression(file)? {
-      0 => "uncompressed",
-      1 => "lossess",
-      2 => "lossy",
-      _ => "unknown",
-    };
-     */
-
     let camera = match rawloader.check_supported(&ifd) {
       Ok(camera) => camera,
       Err(err) => {
