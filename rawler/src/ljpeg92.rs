@@ -107,7 +107,10 @@ impl From<u8> for Predictor {
       5 => Self::P5,
       6 => Self::P6,
       7 => Self::P7,
-      mode => panic!("Invalid predictor mode: {}", mode),
+      mode => {
+        log::warn!("ljpeg92: invalid predictor mode {}, falling back to P1", mode);
+        Self::P1
+      }
     }
   }
 }
