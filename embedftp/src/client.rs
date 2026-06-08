@@ -64,6 +64,7 @@ where
   T: FtpCallback + Clone + Send,
 {
   fn new(handle: Handle, writer: Writer, server_root: PathBuf, config: Config, env: T, local_addr: SocketAddr, remote_addr: SocketAddr) -> Self {
+    let server_root = server_root.canonicalize().unwrap_or(server_root);
     Client {
       cwd: PathBuf::from("/"),
       active_data_port: None,
