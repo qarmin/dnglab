@@ -391,10 +391,7 @@ impl<'a> Decoder for RafDecoder<'a> {
         image.add_dng_tag(TiffCommonTag::CFARepeatPatternDim, [2, 4]);
         image.add_dng_tag(DngTag::CFALayout, 2_u16);
         image.add_dng_tag(TiffCommonTag::CFAPattern, &[0_u8, 1, 2, 1, 2, 1, 0, 1][..]);
-
-        todo!();
-        //image.add_dng_tag(DngTag::BlackLevel, image.blacklevel[0]);
-        //image.add_dng_tag(DngTag::BlackLevelRepeatDim, [1_u16, 1_u16]);
+        // TODO: set BlackLevel and BlackLevelRepeatDim from image.blacklevel when Fuji DNG rotation is implemented
       }
 
       // Reset crops because we have rotated the data.
