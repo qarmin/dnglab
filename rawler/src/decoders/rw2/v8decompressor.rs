@@ -239,7 +239,8 @@ impl HuffmanDecoder {
       pump.consume_bits(bits as u32);
       ssss
     } else {
-      panic!("Input value {:016b} starts not with a valid huffman symbol", next_bits);
+      log::warn!("RW2 v8: input value {:016b} is not a valid Huffman symbol, using 0", next_bits);
+      0
     }
   }
 }
