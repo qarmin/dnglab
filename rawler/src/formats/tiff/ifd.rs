@@ -565,7 +565,7 @@ impl IFD {
 
     let mut tile_slices = Vec::with_capacity(offsets.len());
     offsets.iter().zip(byte_counts.iter()).for_each(|(offset, size)| {
-      tile_slices.push(rawsource.subview(*offset as u64, *size as u64).map_err(TiffError::Io));
+      tile_slices.push(rawsource.subview((self.base + *offset) as u64, *size as u64).map_err(TiffError::Io));
     });
     Ok(tile_slices.into_iter().collect::<Result<Vec<_>>>()?)
   }
