@@ -320,6 +320,9 @@ impl<'a> Rw2Decoder<'a> {
       let crop_top = fetch_tiff_tag!(self.tiff, PanasonicTag::CropTop).force_usize(0);
       let crop_right = fetch_tiff_tag!(self.tiff, PanasonicTag::CropRight).force_usize(0);
       let crop_bottom = fetch_tiff_tag!(self.tiff, PanasonicTag::CropBottom).force_usize(0);
+      if crop_right < crop_left || crop_bottom < crop_top {
+        return Err(RawlerError::DecoderFailed(format!("RW2: invalid crop metadata ({},{}) - ({},{})", crop_left, crop_top, crop_right, crop_bottom)));
+      }
       Ok(Some(Rect::new(
         Point::new(crop_left, crop_top),
         Dim2::new(crop_right - crop_left, crop_bottom - crop_top),
@@ -335,6 +338,9 @@ impl<'a> Rw2Decoder<'a> {
       let sensor_top = fetch_tiff_tag!(self.tiff, PanasonicTag::SensorTopBorder).force_usize(0);
       let sensor_right = fetch_tiff_tag!(self.tiff, PanasonicTag::SensorRightBorder).force_usize(0);
       let sensor_bottom = fetch_tiff_tag!(self.tiff, PanasonicTag::SensorBottomBorder).force_usize(0);
+      if sensor_right < sensor_left || sensor_bottom < sensor_top {
+        return Err(RawlerError::DecoderFailed(format!("RW2: invalid sensor area metadata ({},{}) - ({},{})", sensor_left, sensor_top, sensor_right, sensor_bottom)));
+      }
       Ok(Some(Rect::new(
         Point::new(sensor_left, sensor_top),
         Dim2::new(sensor_right - sensor_left, sensor_bottom - sensor_top),
