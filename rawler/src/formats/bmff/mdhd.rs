@@ -43,9 +43,13 @@ impl<R: Read + Seek> ReadBox<&mut R> for MdhdBox {
         reader.read_u32::<BigEndian>()? as u64,
       )
     };
-    let _language_code = reader.read_u16::<BigEndian>()?;
-    //let language = language_string(language_code); // TODO
-    let language = String::from("FIXME");
+    let language_code = reader.read_u16::<BigEndian>()?;
+    let language = {
+      let c1 = (((language_code >> 10) & 0x1f) + 0x60) as u8;
+      let c2 = (((language_code >> 5) & 0x1f) + 0x60) as u8;
+      let c3 = ((language_code & 0x1f) + 0x60) as u8;
+      String::from_utf8_lossy(&[c1, c2, c3]).into_owned()
+    };
 
     reader.seek(SeekFrom::Start(header.end_offset()))?;
 
