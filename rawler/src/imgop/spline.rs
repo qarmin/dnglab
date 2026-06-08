@@ -60,14 +60,19 @@ impl Spline {
   }
 
   pub fn new(control_points: &[Point]) -> Self {
-    assert!(control_points.len() >= 2, "Need at least two points to interpolate between");
-    assert_eq!(control_points.first().map(|p| p.x as u16), Some(u16::MIN));
-    assert_eq!(control_points.last().map(|p| p.x as u16), Some(u16::MAX));
+    if control_points.len() < 2 {
+      log::warn!("Spline::new: need at least 2 control points, got {}", control_points.len());
+      return Self { num_coords: 0, num_segments: 0, xcp: vec![], segments: vec![] };
+    }
+    if control_points.first().map(|p| p.x as u16) != Some(u16::MIN) || control_points.last().map(|p| p.x as u16) != Some(u16::MAX) {
+      log::warn!("Spline::new: control points don't span full u16 range");
+    }
 
     let mut prev = 0;
     for p in control_points {
       if p.x < prev {
-        panic!("err, p.x {} must be >= {}", p.x, prev);
+        log::warn!("Spline::new: control points not monotonically increasing");
+        return Self { num_coords: 0, num_segments: 0, xcp: vec![], segments: vec![] };
       }
       prev = p.x;
     }
