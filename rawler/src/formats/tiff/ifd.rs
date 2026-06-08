@@ -302,8 +302,8 @@ impl IFD {
           Ok(self.sub.get(&tag))
         }
         val => {
-          debug!("Found IFD offset tag, but type mismatch: {:?}", val);
-          todo!()
+          log::warn!("extend_sub_ifds: IFD offset tag 0x{:X} has unexpected type {:?}, skipping", tag, val);
+          Ok(None)
         }
       }
     } else {
