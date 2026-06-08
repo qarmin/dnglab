@@ -858,8 +858,8 @@ impl Value {
               | ((*v.get(3).unwrap_or(&0) as u32) << 24),
           )
         }
-        Self::Short(v) => Ok((v[0] as u32) | ((*v.get(1).unwrap_or(&0) as u32) << 16)),
-        Self::Long(v) => Ok(v[0]),
+        Self::Short(v) => Ok((v.first().copied().unwrap_or(0) as u32) | ((*v.get(1).unwrap_or(&0) as u32) << 16)),
+        Self::Long(v) => Ok(v.first().copied().unwrap_or(0)),
         Self::SByte(v) => Ok(
           (*v.get(0).unwrap_or(&0) as u32)
             | ((*v.get(1).unwrap_or(&0) as u32) << 8)
@@ -872,9 +872,9 @@ impl Value {
             | ((*v.get(2).unwrap_or(&0) as u32) << 16)
             | ((*v.get(3).unwrap_or(&0) as u32) << 24),
         ),
-        Self::SShort(v) => Ok((v[0] as u32) | ((*v.get(1).unwrap_or(&0) as u32) << 16)),
-        Self::SLong(v) => Ok(v[0] as u32),
-        Self::Float(v) => Ok(v[0] as u32),
+        Self::SShort(v) => Ok((v.first().copied().unwrap_or(0) as u32) | ((*v.get(1).unwrap_or(&0) as u32) << 16)),
+        Self::SLong(v) => Ok(v.first().copied().unwrap_or(0) as u32),
+        Self::Float(v) => Ok(v.first().copied().unwrap_or(0.0) as u32),
         Self::Unknown(_, v) => Ok(
           (*v.get(0).unwrap_or(&0) as u32)
             | ((*v.get(1).unwrap_or(&0) as u32) << 8)
