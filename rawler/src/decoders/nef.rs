@@ -597,7 +597,9 @@ impl<'a> NefDecoder<'a> {
 
     let mut huff_select = 0;
     if v0 == 73 || v1 == 88 {
-      assert!(stream.remaining_bytes() >= 2110);
+      if stream.remaining_bytes() < 2110 {
+        return Err(format!("NEF: stream too short for v0={}/v1={} huffman tables", v0, v1));
+      }
       stream.consume_bytes(2110);
     }
     if v0 == 70 {
