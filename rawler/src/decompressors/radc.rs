@@ -137,7 +137,7 @@ pub fn decompress(src: &PaddedBuf, width: usize, height: usize, cbpp: u8, dummy:
               for y in 1..3 {
                 for x in (col..=(col + 1)).rev() {
                   buf[c][y][x] = (dec.huff_decode(&mut pump, 18) as u8) as i16 * mul[c];
-                  assert!(buf[c][y][x] >= 0);
+                  debug_assert!(buf[c][y][x] >= 0);
                 }
               }
             } else {
