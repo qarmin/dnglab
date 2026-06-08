@@ -261,7 +261,7 @@ impl<'a> Decoder for Cr2Decoder<'a> {
     let photometric = match cpp {
       1 => RawPhotometricInterpretation::Cfa(CFAConfig::new_from_camera(&self.camera)),
       3 => RawPhotometricInterpretation::LinearRaw,
-      _ => todo!(),
+      _ => return Err(RawlerError::DecoderFailed(format!("CR2: unsupported cpp {}", cpp))),
     };
 
     let mut img = RawImage::new(camera.clone(), image, cpp, wb, photometric, blacklevel, whitelevel, dummy);

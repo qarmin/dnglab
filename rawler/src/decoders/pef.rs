@@ -164,7 +164,7 @@ impl<'a> Decoder for PefDecoder<'a> {
           None
         }
       }
-      _ => todo!(),
+      _ => None,
     };
 
     if let Some(image) = image {
