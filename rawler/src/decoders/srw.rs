@@ -370,7 +370,8 @@ impl<'a> SrwDecoder<'a> {
         }
 
         if row < 2 && motion != 7 {
-          panic!("SRW Decoder: At start of image and motion isn't 7. File corrupted?")
+          log::warn!("SRW: motion {} at row {} (expected 7), using base case", motion, row);
+          motion = 7;
         }
 
         if motion == 7 {
@@ -382,7 +383,8 @@ impl<'a> SrwDecoder<'a> {
         } else {
           // The complex case, we now need to actually lookup one or two lines above
           if row < 2 {
-            panic!("SRW: Got a previous line lookup on first two lines. File corrupted?");
+            log::warn!("SRW: previous line lookup on first two rows, skipping column");
+            continue;
           }
           let motion_offset: [isize; 7] = [-4, -2, -2, 0, 0, 2, 4];
           let motion_average: [i32; 7] = [0, 0, 1, 0, 1, 0, 0];
@@ -434,7 +436,8 @@ impl<'a> SrwDecoder<'a> {
             diff_bits_mode[colornum][0] = diff_bits_mode[colornum][1];
             diff_bits_mode[colornum][1] = diff_bits[i];
             if diff_bits[i] > bit_depth + 1 {
-              panic!("SRW Decoder: Too many difference bits. File corrupted?");
+              log::warn!("SRW: diff_bits {} exceeds bit_depth+1 {}, clamping", diff_bits[i], bit_depth + 1);
+              diff_bits[i] = bit_depth + 1;
             }
           }
         }
