@@ -206,7 +206,11 @@ impl GenericTiffReader {
   /// Check if buffer looks like a TIFF file
   pub fn is_tiff<T: AsRef<[u8]>>(buffer: T) -> bool {
     let buffer = buffer.as_ref();
-    buffer[0] == 0x49 || buffer[0] == 0x4d // TODO
+    if buffer.len() < 4 {
+      return false;
+    }
+    (buffer[0] == 0x49 && buffer[1] == 0x49 && buffer[2] == 42 && buffer[3] == 0)
+      || (buffer[0] == 0x4d && buffer[1] == 0x4d && buffer[2] == 0 && buffer[3] == 42)
   }
 
   pub fn little_endian(&self) -> bool {
