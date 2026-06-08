@@ -57,16 +57,18 @@ pub fn parse_makernote<R: Read + Seek>(reader: &mut R, exif_ifd: &IFD) -> Result
       Value::Undefined(data) => {
         let mut off = 0;
         // Olympus starts the makernote with their own name, sometimes truncated
-        if data[0..5] == b"OLYMP"[..] {
+        if data.len() >= 5 && data[0..5] == b"OLYMP"[..] {
           off += 8;
-          if data[0..7] == b"OLYMPUS"[..] {
+          if data.len() >= 7 && data[0..7] == b"OLYMPUS"[..] {
             off += 4;
           }
         }
         // OM Digital Solutions put their name in front of the TIFF structure, too
-        if data[0..9] == b"OM SYSTEM"[..] {
+        if data.len() >= 9 && data[0..9] == b"OM SYSTEM"[..] {
           off += 16;
-          assert_eq!(data[12..14], b"II"[..]);
+          if data.len() < 14 || data[12..14] != b"II"[..] {
+            return Err(RawlerError::DecoderFailed("ORF: OM SYSTEM makernote missing II endian marker".to_string()));
+          }
         }
         let endian = exif_ifd.endian;
         //assert!(data[off..off + 2] == b"II"[..] || data[off..off + 2] == b"MM"[..], "ORF: must contain endian marker in makernote IFD");
