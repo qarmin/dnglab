@@ -1042,15 +1042,18 @@ impl TiffAscii {
 
   pub fn new_from_raw(raw: &[u8]) -> Self {
     let mut strings = Vec::new();
-    let mut nul_range_end = 0;
+    let mut pos = 0;
 
-    // TODO: fixme multiple strings
-    //while nul_range_end < raw.len() {
-    nul_range_end = raw[nul_range_end..].iter().position(|&c| c == b'\0').unwrap_or(raw.len()); // default to length if no `\0` present
-    let s = ::std::str::from_utf8(&raw[0..nul_range_end]).unwrap_or("!!!INVALID UTF8!!!");
-    strings.push(String::from(s));
-    //nul_range_end += 1;
-    // }
+    while pos < raw.len() {
+      let end = raw[pos..].iter().position(|&c| c == b'\0').map_or(raw.len(), |p| pos + p);
+      let s = std::str::from_utf8(&raw[pos..end]).unwrap_or("!!!INVALID UTF8!!!");
+      strings.push(String::from(s));
+      pos = end + 1; // skip the null terminator
+    }
+
+    if strings.is_empty() {
+      strings.push(String::new());
+    }
 
     Self {
       strings,
