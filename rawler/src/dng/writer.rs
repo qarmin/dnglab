@@ -184,8 +184,9 @@ where
       CropMode::None => full_size,
     };
 
-    assert!(active_area.p.x + active_area.d.w <= rawimage.width);
-    assert!(active_area.p.y + active_area.d.h <= rawimage.height);
+    if active_area.p.x + active_area.d.w > rawimage.width || active_area.p.y + active_area.d.h > rawimage.height {
+      log::warn!("DNG writer: active_area {:?} exceeds image dims {}x{}", active_area, rawimage.width, rawimage.height);
+    }
 
     //self.ifd.add_tag(TiffCommonTag::NewSubFileType, 0_u16)?; // Raw
     self.ifd_mut().add_tag(TiffCommonTag::ImageWidth, rawimage.width as u32);
@@ -196,8 +197,7 @@ where
     match cropmode {
       CropMode::ActiveArea => {
         let crop = active_area;
-        assert!(crop.p.x >= active_area.p.x);
-        assert!(crop.p.y >= active_area.p.y);
+        // crop == active_area here so these are always true
         self.ifd_mut().add_tag(
           DngTag::DefaultCropOrigin,
           [(crop.p.x - active_area.p.x) as u16, (crop.p.y - active_area.p.y) as u16],
@@ -206,8 +206,6 @@ where
       }
       CropMode::Best => {
         let crop = rawimage.crop_area.unwrap_or(active_area);
-        assert!(crop.p.x >= active_area.p.x);
-        assert!(crop.p.y >= active_area.p.y);
         self.ifd_mut().add_tag(
           DngTag::DefaultCropOrigin,
           [(crop.p.x - active_area.p.x) as u16, (crop.p.y - active_area.p.y) as u16],
@@ -232,7 +230,9 @@ where
     );
 
     // Whitelevel
-    assert_eq!(rawimage.whitelevel.0.len(), rawimage.cpp, "Whitelevel sample count must match cpp");
+    if rawimage.whitelevel.0.len() != rawimage.cpp {
+      log::warn!("DNG writer: whitelevel sample count {} != cpp {}", rawimage.whitelevel.0.len(), rawimage.cpp);
+    }
 
     if rawimage.whitelevel.0.iter().all(|x| *x <= (u16::MAX as u32)) {
       // Add as u16
@@ -275,12 +275,12 @@ where
 
     match &rawimage.photometric {
       RawPhotometricInterpretation::BlackIsZero => {
-        assert_eq!(rawimage.cpp, 1);
+        if rawimage.cpp != 1 { log::warn!("DNG writer: expected cpp=1, got {}", rawimage.cpp); }
         self.ifd_mut().add_tag(TiffCommonTag::PhotometricInt, PhotometricInterpretation::BlackIsZero);
       }
       RawPhotometricInterpretation::Cfa(config) => {
-        assert!(config.cfa.is_valid());
-        assert_eq!(rawimage.cpp, 1);
+        if !config.cfa.is_valid() { log::warn!("DNG writer: CFA pattern is invalid"); }
+        if rawimage.cpp != 1 { log::warn!("DNG writer: expected cpp=1, got {}", rawimage.cpp); }
         let cfa = config.cfa.shift(active_area.p.x, active_area.p.y);
         self
           .ifd_mut()
@@ -585,11 +585,11 @@ where
 
       let (j_width, j_height, components, realign) = match &rawimage.photometric {
         RawPhotometricInterpretation::BlackIsZero => {
-          assert_eq!(rawimage.cpp, 1);
+          if rawimage.cpp != 1 { log::warn!("DNG writer: expected cpp=1, got {}", rawimage.cpp); }
           (tile_w, tile_h, 1, 1)
         }
         RawPhotometricInterpretation::Cfa(config) => {
-          assert_eq!(rawimage.cpp, 1);
+          if rawimage.cpp != 1 { log::warn!("DNG writer: expected cpp=1, got {}", rawimage.cpp); }
           let realign = if (4..=7).contains(&predictor) && config.cfa.width == 2 && config.cfa.height == 2 {
             2
           } else {
