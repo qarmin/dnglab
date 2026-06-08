@@ -271,11 +271,12 @@ pub(super) fn decompress_fuji(buf: &PaddedBuf, width: usize, height: usize, _bps
   if !header.is_valid() {
     return Err("Fuji header is not valid".into());
   }
-  assert_eq!(
-    Dim2::new(width, height),
-    Dim2::new(header.raw_width.into(), header.raw_height.into()),
-    "RAF header specifies different dimensions!"
-  );
+  if Dim2::new(width, height) != Dim2::new(header.raw_width.into(), header.raw_height.into()) {
+    return Err(format!(
+      "Fuji: RAF header specifies {}x{} but expected {}x{}",
+      header.raw_width, header.raw_height, width, height
+    ).into());
+  }
 
   let params = Params::new(&header)?;
   log::debug!("Params: {:?}", params);
@@ -324,7 +325,9 @@ pub(super) fn decompress_fuji(buf: &PaddedBuf, width: usize, height: usize, _bps
     })
     .collect();
 
-  assert!(stream.remaining_bytes() <= 16);
+  if stream.remaining_bytes() > 16 {
+    log::warn!("Fuji: unexpected {} bytes remaining after strip parsing", stream.remaining_bytes());
+  }
 
   let out = SharedPix2D::new(PixU16::new(width, height));
 
@@ -916,7 +919,8 @@ fn read_code(pump: &mut BitPumpMSB, params: &Params, gradient: &mut Gradient, q_
   };
   // Validate code
   if code < 0 || code >= q_table.total_values as i32 {
-    panic!("Invalid code: {}", code);
+    log::warn!("Fuji: invalid code {} (total_values={}), clamping to 0", code, q_table.total_values);
+    code = 0;
   }
   // Adjust code
   if (code & 1) != 0 {
