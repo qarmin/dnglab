@@ -475,8 +475,9 @@ where
 
   pub fn crop(&self, area: Rect) -> Self {
     let mut output = Vec::with_capacity(area.d.h * area.d.w);
-    assert!(area.p.y + area.d.h <= self.height);
-    assert!(area.p.x + area.d.w <= self.width);
+    if area.p.y + area.d.h > self.height || area.p.x + area.d.w > self.width {
+      log::warn!("Color2D::crop: area {:?} out of bounds {}x{}", area, self.width, self.height);
+    }
     output.extend(
       self
         .pixels()
