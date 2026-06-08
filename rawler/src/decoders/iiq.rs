@@ -517,7 +517,8 @@ impl<'a> IiqDecoder<'a> {
           4
         }
         _ => {
-          panic!("Unsupported flat field typ");
+          log::warn!("IIQ: unsupported flat field type 0x{:x}, skipping", flat.typ);
+          continue;
         }
       };
 
@@ -802,7 +803,9 @@ impl<'a> IiqDecoder<'a> {
           match tag {
             0x0400 => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert_eq!(len % 4, 0);
+              if len % 4 != 0 {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "IIQ: defect list length not divisible by 4"));
+              }
               let mut defect_list = Vec::new();
               for _ in 0..(len / 4) {
                 let col = stream.read_u16::<LittleEndian>()? as usize;
@@ -837,7 +840,9 @@ impl<'a> IiqDecoder<'a> {
 
             0x0419 => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert!(len as usize >= 8 * size_of::<f32>());
+              if (len as usize) < 8 * size_of::<f32>() {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "IIQ: poly_curve_half data too short"));
+              }
               let mut data = [f32::NAN; 8];
               for entry in data.iter_mut() {
                 *entry = stream.read_f32::<LittleEndian>()?;
@@ -846,7 +851,9 @@ impl<'a> IiqDecoder<'a> {
             }
             0x041a => {
               stream.seek(SeekFrom::Start(offset + tag_offset))?;
-              assert_eq!(len as usize, 4 * size_of::<f32>());
+              if (len as usize) != 4 * size_of::<f32>() {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "IIQ: poly_curve_full data has wrong size"));
+              }
               let mut data = [f32::NAN; 4];
               for entry in data.iter_mut() {
                 *entry = stream.read_f32::<LittleEndian>()?;
@@ -904,7 +911,7 @@ impl<'a> IiqDecoder<'a> {
           sensor_margins,
         })
       }
-      _ => panic!("No sensor calibration data found."),
+      _ => Err(std::io::Error::new(std::io::ErrorKind::NotFound, "No sensor calibration data found in IIQ makernotes")),
     }
   }
 
@@ -963,8 +970,8 @@ impl<'a> IiqDecoder<'a> {
           // But this is not just averaging, we bias towards the horizontal pixels.
           *img.at_mut(row, col) = (diags as f32 * 0.0732233 + horiz as f32 * 0.3535534).round() as u16;
         }
-        _ => {
-          panic!("Other colors should not appear here");
+        other => {
+          log::warn!("IIQ fix_bad_column: unexpected CFA color {} at ({},{}), skipping", other, row, col);
         }
       }
     }
