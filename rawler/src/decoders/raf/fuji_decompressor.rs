@@ -324,7 +324,9 @@ pub(super) fn decompress_fuji(buf: &PaddedBuf, width: usize, height: usize, _bps
     })
     .collect();
 
-  assert!(stream.remaining_bytes() <= 16);
+  if stream.remaining_bytes() > 16 {
+    log::warn!("RAF: {} bytes remaining after parsing strips (expected <= 16)", stream.remaining_bytes());
+  }
 
   let out = SharedPix2D::new(PixU16::new(width, height));
 
