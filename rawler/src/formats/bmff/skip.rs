@@ -3,10 +3,10 @@
 // Copyright 2021 Daniel Vogelbacher <daniel@chaospixel.com>
 
 use super::{BoxHeader, FourCC, ReadBox, Result};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::io::{Read, Seek, SeekFrom};
 
-#[derive(Debug, Clone, PartialEq, Default, Serialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct SkipBox {
   pub header: BoxHeader,
 }
