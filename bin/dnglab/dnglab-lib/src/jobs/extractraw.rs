@@ -53,6 +53,7 @@ impl Display for JobResult {
 
 impl ExtractRawJob {
   fn internal_exec(&self) -> Result<JobResult> {
+    let now = Instant::now();
     if self.output.exists() && !self.replace {
       return Err(AppError::AlreadyExists(self.output.clone()));
     }
@@ -84,7 +85,7 @@ impl ExtractRawJob {
         stream.flush()?;
         Ok(JobResult {
           job: self.clone(),
-          duration: 0.0, // TODO: fixme
+          duration: now.elapsed().as_secs_f32(),
           error: None,
         })
       } else {
