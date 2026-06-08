@@ -233,15 +233,15 @@ impl From<u32> for Rational {
 
 impl From<f32> for Rational {
   fn from(value: f32) -> Self {
-    if value.is_sign_negative() {
-      panic!("Can not convert {} to Rational type", value);
+    if !value.is_finite() || value.is_sign_negative() {
+      return Self::new(0, 1);
     }
-    let ratio = num::rational::Ratio::from_float(value).expect("Failed to convert float");
-    // TODO: This is a workaround, need to implement better routine
-    Self::new(
-      ratio.numer().try_into().expect("Rational numerator overflows u32"),
-      ratio.denom().try_into().expect("Rational denominator overflows u32"),
-    )
+    if let Some(ratio) = num::rational::Ratio::from_float(value) {
+      if let (Ok(n), Ok(d)) = (u32::try_from(*ratio.numer()), u32::try_from(*ratio.denom())) {
+        return Self::new(n, d);
+      }
+    }
+    Self::new(0, 1)
   }
 }
 
