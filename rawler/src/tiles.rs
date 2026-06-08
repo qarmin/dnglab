@@ -24,7 +24,9 @@ pub struct ImageTiler<'a, T> {
 
 impl<'a, T> ImageTiler<'a, T> {
   pub fn new(data: &'a [T], width: usize, height: usize, cpp: usize, tw: usize, th: usize) -> Self {
-    assert!(data.len() >= height * width * cpp);
+    if data.len() < height * width * cpp {
+      log::warn!("ImageTiler: data len {} < {}*{}*{}={}", data.len(), height, width, cpp, height*width*cpp);
+    }
     let tcols = width.div_ceil(tw);
     let trows = height.div_ceil(th);
     Self {
@@ -131,9 +133,9 @@ where
   T: SubPixel,
 {
   fn into_tiles_iter_mut(self, width: usize, cpp: usize, tile_width: usize, tile_height: usize) -> std::result::Result<IntoTilesIter<'a, T>, ErrorNotTileable> {
-    assert!(width > 0, "Width and height must be greater than zero");
-    assert!(tile_width * tile_height > 0, "Tile width and height must be greater than zero");
-    assert!(cpp > 0, "cpp must be greater than zero");
+    if width == 0 || tile_width == 0 || tile_height == 0 || cpp == 0 {
+      return Err(ErrorNotTileable);
+    }
     if !self.len().is_multiple_of(tile_width * cpp * tile_height) {
       return Err(ErrorNotTileable);
     }
@@ -195,7 +197,7 @@ impl<'a, T> Iterator for IntoTilesIter<'a, T> {
     let tile_x = self.count % tile_cols;
     let tile_y = self.count / tile_cols;
 
-    assert!(self.count <= self.tile_count());
+    if self.count > self.tile_count() { return None; }
 
     let start_index = tile_x * (self.tile_width * self.cpp) + tile_y * (self.width * self.cpp) * self.tile_height;
     self.count += 1;
