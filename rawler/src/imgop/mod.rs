@@ -59,7 +59,7 @@ impl Dim2 {
   }
 
   pub fn is_empty(&self) -> bool {
-    self.w == 0 && self.h == 0
+    self.w == 0 || self.h == 0
   }
 }
 
