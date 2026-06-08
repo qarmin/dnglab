@@ -591,37 +591,37 @@ impl IFD {
           let mut endian = self.endian;
 
           // Olympus starts the makernote with their own name, sometimes truncated
-          if data[0..5] == b"OLYMP"[..] {
+          if data.starts_with(b"OLYMP") {
             off += 8;
-            if data[0..7] == b"OLYMPUS"[..] {
+            if data.starts_with(b"OLYMPUS") {
               off += 4;
             }
           }
 
           // Epson starts the makernote with its own name
-          if data[0..5] == b"EPSON"[..] {
+          if data.starts_with(b"EPSON") {
             off += 8;
           }
 
           // Fujifilm has 12 extra bytes
-          if data[0..8] == b"FUJIFILM"[..] {
+          if data.starts_with(b"FUJIFILM") {
             off += 12;
           }
 
           // Sony has 12 extra bytes
-          if data[0..9] == b"SONY DSC "[..] {
+          if data.starts_with(b"SONY DSC ") {
             off += 12;
           }
 
           // Pentax makernote starts with AOC\0 - If it's there, skip it
-          if data[0..4] == b"AOC\0"[..] {
+          if data.starts_with(b"AOC\0") {
             off += 4;
           }
 
           // Pentax can also start with PENTAX and in that case uses different offsets
-          if data[0..6] == b"PENTAX"[..] {
+          if data.starts_with(b"PENTAX") {
             off += 8;
-            let endian = if data[off..off + 2] == b"II"[..] { Endian::Little } else { Endian::Big };
+            let endian = if data.get(off..off + 2) == Some(b"II") { Endian::Little } else { Endian::Big };
             // All offsets in this IFD are relative to the start of this tag,
             // so wie use the offset as correction value.
             let corr = offset as i32;
@@ -629,18 +629,17 @@ impl IFD {
             return Ok(Some(IFD::new(reader, offset + 10, self.base, corr, endian, sub_tags)?));
           }
 
-          if data[0..7] == b"Nikon\0\x02"[..] {
+          if data.starts_with(b"Nikon\0\x02") {
             off += 10;
-            let endian = if data[off..off + 2] == b"II"[..] { Endian::Little } else { Endian::Big };
+            let endian = if data.get(off..off + 2) == Some(b"II") { Endian::Little } else { Endian::Big };
             return Ok(Some(IFD::new(reader, 8, self.base + offset + 10, 0, endian, sub_tags)?));
           }
 
           // Some have MM or II to indicate endianness - read that
-          if data[off..off + 2] == b"II"[..] {
+          if data.get(off..off + 2) == Some(b"II") {
             off += 2;
             endian = Endian::Little;
-          }
-          if data[off..off + 2] == b"MM"[..] {
+          } else if data.get(off..off + 2) == Some(b"MM") {
             off += 2;
             endian = Endian::Big;
           }
