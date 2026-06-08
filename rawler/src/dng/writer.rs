@@ -386,9 +386,10 @@ where
   }
 
   pub fn as_shot_neutral(&mut self, wb: impl AsRef<[Rational]>) {
-    // Only write tag if wb is valid
-    if wb.as_ref()[0].n != 0 {
-      self.root_ifd.add_tag(DngTag::AsShotNeutral, wb.as_ref());
+    let wb = wb.as_ref();
+    // Only write tag if wb is valid (numerator != 0 and denominator != 0)
+    if !wb.is_empty() && wb[0].n != 0 && wb[0].d != 0 {
+      self.root_ifd.add_tag(DngTag::AsShotNeutral, wb);
     }
   }
 
