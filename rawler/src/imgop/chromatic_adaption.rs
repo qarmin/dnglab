@@ -27,26 +27,26 @@ fn whitepoint_to_lms(whitepoint: &[f32; 3], adaption: &[[f32; 3]; 3]) -> [f32; 3
 #[allow(non_snake_case)]
 fn illuminant_to_XYZ_tristimulus(illuminant: &Illuminant) -> [f32; 3] {
   match illuminant {
-    Illuminant::Unknown => todo!(),
+    Illuminant::Unknown => CIE_1931_TRISTIMULUS_D65, // fallback
     Illuminant::Daylight => {
       // There is no official CIE XYZ tristimulus white point for "Daylight" illuminants.
       // We use D65 as an approximation
       CIE_1931_TRISTIMULUS_D65
     }
-    Illuminant::Fluorescent => todo!(),
-    Illuminant::Tungsten => todo!(),
+    Illuminant::Fluorescent => CIE_1931_TRISTIMULUS_F7, // D65-like fluorescent
+    Illuminant::Tungsten => CIE_1931_TRISTIMULUS_A,     // A is the standard for tungsten
     Illuminant::Flash => {
       // There is no official CIE XYZ tristimulus white point for "Flash" illuminants.
-      // We use D55 as an approximation assuming flash CCT ≈ 5500 K
+      // We use D55 as an approximation assuming flash CCT ≈ 5500 K
       CIE_1931_TRISTIMULUS_D55
     }
-    Illuminant::FineWeather => todo!(),
-    Illuminant::CloudyWeather => todo!(),
-    Illuminant::Shade => todo!(),
-    Illuminant::DaylightFluorescent => todo!(),
-    Illuminant::DaylightWhiteFluorescent => todo!(),
-    Illuminant::CoolWhiteFluorescent => todo!(),
-    Illuminant::WhiteFluorescent => todo!(),
+    Illuminant::FineWeather => CIE_1931_TRISTIMULUS_D65,
+    Illuminant::CloudyWeather => CIE_1931_TRISTIMULUS_D65,
+    Illuminant::Shade => CIE_1931_TRISTIMULUS_D75,
+    Illuminant::DaylightFluorescent => CIE_1931_TRISTIMULUS_F7,
+    Illuminant::DaylightWhiteFluorescent => CIE_1931_TRISTIMULUS_F7,
+    Illuminant::CoolWhiteFluorescent => CIE_1931_TRISTIMULUS_F2,
+    Illuminant::WhiteFluorescent => CIE_1931_TRISTIMULUS_F11,
     Illuminant::A => CIE_1931_TRISTIMULUS_A,
     Illuminant::B => CIE_1931_TRISTIMULUS_B,
     Illuminant::C => CIE_1931_TRISTIMULUS_C,
@@ -54,7 +54,7 @@ fn illuminant_to_XYZ_tristimulus(illuminant: &Illuminant) -> [f32; 3] {
     Illuminant::D65 => CIE_1931_TRISTIMULUS_D65,
     Illuminant::D75 => CIE_1931_TRISTIMULUS_D75,
     Illuminant::D50 => CIE_1931_TRISTIMULUS_D50,
-    Illuminant::IsoStudioTungsten => todo!(),
+    Illuminant::IsoStudioTungsten => CIE_1931_TRISTIMULUS_A, // similar to tungsten
   }
 }
 
