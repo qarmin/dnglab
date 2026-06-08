@@ -219,8 +219,9 @@ impl LookupTable {
       let center = table[i];
       let lower = if i > 0 { table[i - 1] } else { center };
       let upper = if i < (table.len() - 1) { table[i + 1] } else { center };
-      let base = if center == 0 { 0 } else { center - ((upper - lower + 2) / 4) };
-      let delta = upper - lower;
+      let delta_signed = (upper as i32) - (lower as i32);
+      let base = if center == 0 { 0 } else { center.saturating_sub(((delta_signed.unsigned_abs() + 2) / 4) as u16) };
+      let delta = upper.wrapping_sub(lower);
       tbl[i] = (center, base, delta);
     }
     LookupTable { table: tbl }
