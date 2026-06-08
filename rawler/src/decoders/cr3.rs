@@ -630,6 +630,9 @@ impl Ctmd {
 
     while data.remaining_bytes() >= 12 {
       let size = data.get_u32();
+      if size < 12 {
+        break;
+      }
       let mut rec = CtmdRecord {
         rec_size: size,
         rec_type: data.get_u16(),
