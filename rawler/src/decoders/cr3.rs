@@ -659,7 +659,9 @@ impl Ctmd {
             let data = bs.get_bytes(sz as usize - 8);
             //dump_buf(&format!("/tmp/ctmd_rec{}_block{}_tag0x{:X}_uk{:X}.bin", rec.rec_type, block_id, tag, uk), data.as_slice());
             if [CR3_CTMD_BLOCK_EXIFIFD, CR3_CTMD_BLOCK_MAKERNOTES].contains(&tag) {
-              assert_eq!(rec.blocks.contains_key(&tag), false, "Double tag found?!");
+              if rec.blocks.contains_key(&tag) {
+                log::warn!("CR3 CTMD: duplicate block tag 0x{:X}, overwriting", tag);
+              }
               rec.blocks.insert(tag, data);
             }
             _block_id += 1;
