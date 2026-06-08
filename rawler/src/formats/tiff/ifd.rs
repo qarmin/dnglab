@@ -238,55 +238,6 @@ impl IFD {
     self.entries().iter().map(|(tag, entry)| (tag, &entry.value))
   }
 
-  /*
-  pub fn new<R: Read + Seek>(reader: &mut R, offset: u32, base: u32, corr: i32, endian: Endian, sub_tags: &[u16]) -> Result<Self> {
-    reader.seek(SeekFrom::Start((base + offset) as u64))?;
-    let mut sub_ifd_offsets = Vec::new();
-    let mut reader = EndianReader::new(reader, endian);
-    let entry_count = reader.read_u16()?;
-    let mut entries = BTreeMap::new();
-    let mut sub = Vec::new();
-    for _ in 0..entry_count {
-      //let embedded = reader.read_u32()?;
-      let tag = reader.read_u16()?;
-      if tag == LegacyTiffRootTag::SubIFDs.into() || sub_tags.contains(&tag) {
-        let entry = Entry::parse(&mut reader, base, corr, tag)?;
-        match entry.value {
-          Value::Long(offsets) => {
-            sub_ifd_offsets.extend_from_slice(&offsets);
-          }
-          _ => {
-            todo!()
-          }
-        }
-      } else {
-        let entry = Entry::parse(&mut reader, base, corr, tag)?;
-        entries.insert(entry.tag, entry);
-      }
-    }
-    let next_ifd = reader.read_u32()?;
-
-    // Process SubIFDs
-    let pos = reader.position()?;
-    let reader = reader.into_inner();
-    for offset in sub_ifd_offsets {
-      let ifd = IFD::new(reader, apply_corr(offset, corr), base, corr, endian, sub_tags)?;
-      sub.push(ifd);
-    }
-    EndianReader::new(reader, endian).goto(pos)?; // restore
-
-    Ok(Self {
-      offset,
-      base,
-      corr,
-      next_ifd: if next_ifd == 0 { 0 } else { apply_corr(next_ifd, corr) },
-      entries,
-      endian,
-      sub,
-    })
-  }
-   */
-
   /// Extend the IFD with sub-IFDs from a specific tag.
   /// The IFD corrections are used from current IFD.
   pub fn extend_sub_ifds<R: Read + Seek>(&mut self, reader: &mut R, tag: u16) -> Result<Option<&Vec<Self>>> {
