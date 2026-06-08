@@ -295,7 +295,7 @@ impl IFD {
       match &entry.value {
         Value::Long(offsets) => {
           for off in offsets {
-            let ifd = Self::new_root_with_correction(reader, *off, self.base, self.corr, 10, &[])?;
+            let ifd = Self::new(reader, apply_corr(*off, self.corr), self.base, self.corr, self.endian, &[])?;
             subs.push(ifd);
           }
           self.sub.insert(tag, subs);
@@ -303,7 +303,7 @@ impl IFD {
         }
         val => {
           debug!("Found IFD offset tag, but type mismatch: {:?}", val);
-          todo!()
+          Ok(None)
         }
       }
     } else {
