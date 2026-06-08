@@ -306,7 +306,7 @@ impl RawImage {
         }
       }
 
-      let blacklevels: Vec<f32> = samples.into_iter().map(|s| s.avg / s.count as f32).collect();
+      let blacklevels: Vec<f32> = samples.into_iter().map(|s| if s.count > 0 { s.avg / s.count as f32 } else { 0.0 }).collect();
 
       debug!("Calculated blacklevels: {:?}", blacklevels);
       // TODO: support other then RGGB levels
