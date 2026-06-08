@@ -19,12 +19,12 @@ pub const DNG_VERSION_V1_6: [u8; 4] = [1, 6, 0, 0];
 ///
 /// DNG ActiveArea  is:
 ///  Top, Left, Bottom, Right
-pub fn rect_to_dng_area(area: &Rect) -> [u16; 4] {
+pub fn rect_to_dng_area(area: &Rect) -> [u32; 4] {
   [
-    area.p.y as u16,
-    area.p.x as u16,
-    area.p.y as u16 + area.d.h as u16,
-    area.p.x as u16 + area.d.w as u16,
+    area.p.y as u32,
+    area.p.x as u32,
+    (area.p.y + area.d.h) as u32,
+    (area.p.x + area.d.w) as u32,
   ]
   /*
   [

@@ -267,7 +267,7 @@ where
     }
 
     if !rawimage.blackareas.is_empty() {
-      let data: Vec<u16> = rawimage.blackareas.iter().flat_map(rect_to_dng_area).collect();
+      let data: Vec<u32> = rawimage.blackareas.iter().flat_map(rect_to_dng_area).collect();
       self.ifd_mut().add_tag(DngTag::MaskedAreas, &data);
     }
 
