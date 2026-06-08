@@ -239,7 +239,7 @@ impl<'a> Decoder for ArwDecoder<'a> {
   }
 
   fn format_dump(&self) -> crate::analyze::FormatDump {
-    todo!()
+    crate::analyze::FormatDump::Unknown
   }
 
   fn raw_metadata(&self, _file: &RawSource, _params: &RawDecodeParams) -> Result<RawMetadata> {

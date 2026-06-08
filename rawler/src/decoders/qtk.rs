@@ -116,7 +116,7 @@ impl<'a> Decoder for QtkDecoder<'a> {
   }
 
   fn format_dump(&self) -> FormatDump {
-    todo!()
+    FormatDump::Unknown
   }
 
   fn raw_metadata(&self, _file: &RawSource, _params: &RawDecodeParams) -> Result<RawMetadata> {

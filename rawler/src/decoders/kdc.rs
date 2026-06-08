@@ -135,7 +135,7 @@ impl<'a> Decoder for KdcDecoder<'a> {
   }
 
   fn format_dump(&self) -> FormatDump {
-    todo!()
+    FormatDump::Unknown
   }
 
   fn raw_metadata(&self, _file: &RawSource, _params: &RawDecodeParams) -> Result<RawMetadata> {

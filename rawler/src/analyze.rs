@@ -143,6 +143,7 @@ pub enum FormatDump {
   Tfr(TfrFormat),
   Nef(NefFormat),
   Dng(DngFormat),
+  Unknown,
 }
 
 fn file_metadata<P: AsRef<Path>>(path: P, rawfile: &RawSource) -> Result<FileMetadata> {

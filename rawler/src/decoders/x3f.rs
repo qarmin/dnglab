@@ -135,7 +135,7 @@ impl<'a> Decoder for X3fDecoder<'a> {
   }
 
   fn format_dump(&self) -> FormatDump {
-    todo!()
+    FormatDump::Unknown
   }
 
   fn format_hint(&self) -> FormatHint {

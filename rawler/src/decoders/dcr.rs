@@ -78,7 +78,7 @@ impl<'a> Decoder for DcrDecoder<'a> {
   }
 
   fn format_dump(&self) -> FormatDump {
-    todo!()
+    FormatDump::Unknown
   }
 
   fn raw_metadata(&self, _file: &RawSource, __params: &RawDecodeParams) -> Result<RawMetadata> {
