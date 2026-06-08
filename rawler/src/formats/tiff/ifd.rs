@@ -154,7 +154,9 @@ impl IFD {
                 sub_ifd_offsets.insert(tag, offsets.clone());
               }
               Value::Unknown(tag, offsets) => {
-                sub_ifd_offsets.insert(*tag, vec![offsets[0] as u32]);
+                if !offsets.is_empty() {
+                  sub_ifd_offsets.insert(*tag, vec![offsets[0] as u32]);
+                }
               }
               Value::Undefined(_) => {
                 if let Some(offset) = entry.offset() {
