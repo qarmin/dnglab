@@ -41,7 +41,9 @@ pub(crate) fn decode_panasonic_v6(buf: &[u8], width: usize, height: usize, bps: 
   let blocks_per_row = width / pixels_per_block;
   let bytes_per_row = V6_BYTES_PER_BLOCK * blocks_per_row;
 
-  assert_eq!(width % pixels_per_block, 0);
+  if width % pixels_per_block != 0 {
+    return Err(format!("RW2 v6: width {} is not aligned to pixels_per_block {}", width, pixels_per_block));
+  }
 
   //log::debug!("RW2 V5 decoder: pixels per block: {}, bps: {}", pixels_per_block, bps);
 

@@ -16,7 +16,9 @@ pub(crate) fn decode_panasonic_v7(buf: &[u8], width: usize, height: usize, bps: 
   };
   let blocks_per_row = width / pixels_per_block;
 
-  assert_eq!(width % pixels_per_block, 0);
+  if width % pixels_per_block != 0 {
+    return Err(format!("RW2 v7: width {} is not aligned to pixels_per_block {}", width, pixels_per_block));
+  }
 
   let bytes_per_row = V7_BYTES_PER_BLOCK * blocks_per_row;
 
