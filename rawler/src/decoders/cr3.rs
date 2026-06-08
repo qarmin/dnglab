@@ -126,14 +126,14 @@ impl<'a> Cr3Decoder<'a> {
 
   /// Get IAD1 box for specific trak
   fn iad1_box(&self, trak_idx: usize) -> Option<&Iad1Box> {
-    let trak = &self.bmff.filebox.moov.traks[trak_idx];
+    let trak = self.bmff.filebox.moov.traks.get(trak_idx)?;
     let craw = trak.mdia.minf.stbl.stsd.craw.as_ref();
     craw.and_then(|craw| craw.cdi1.as_ref()).map(|cdi1| &cdi1.iad1)
   }
 
   /// Get CMP1 box for specific trak
   fn cmp1_box(&self, trak_idx: usize) -> Option<&Cmp1Box> {
-    let trak = &self.bmff.filebox.moov.traks[trak_idx];
+    let trak = self.bmff.filebox.moov.traks.get(trak_idx)?;
     let craw = trak.mdia.minf.stbl.stsd.craw.as_ref();
     craw.and_then(|craw| craw.cmp1.as_ref())
   }
@@ -424,15 +424,16 @@ impl<'a> Decoder for Cr3Decoder<'a> {
     if rawler_ignore_previews() {
       return Err(RawlerError::DecoderFailed("Unable to extract preview image".into()));
     }
-    let offset = self.bmff.filebox.moov.traks[0]
+    let trak0 = self.bmff.filebox.moov.traks.first().ok_or_else(|| RawlerError::DecoderFailed("CR3: no traks found".into()))?;
+    let offset = trak0
       .mdia
       .minf
       .stbl
       .co64
       .as_ref()
       .ok_or_else(|| RawlerError::DecoderFailed("co64 box not found".into()))?
-      .entries[0] as usize;
-    let size = self.bmff.filebox.moov.traks[0].mdia.minf.stbl.stsz.sample_sizes[0] as usize;
+      .entries.first().copied().ok_or_else(|| RawlerError::DecoderFailed("co64 entries empty".into()))? as usize;
+    let size = trak0.mdia.minf.stbl.stsz.sample_sizes.first().copied().ok_or_else(|| RawlerError::DecoderFailed("stsz sample_sizes empty".into()))? as usize;
     debug!("JPEG preview mdat offset: {}, len: {}", offset, size);
     let buf = file
       .subview(offset as u64, size as u64)
