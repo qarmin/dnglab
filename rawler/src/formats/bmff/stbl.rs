@@ -24,14 +24,14 @@ impl StblBox {
 
   pub fn get_sample_offset(&self, sample: u32) -> Option<(usize, usize)> {
     if let Some(co64) = self.co64.as_ref() {
-      assert!(sample > 0, "sample number must be greater than 0");
+      if sample == 0 { return None; }
       let desc = self.stsc.get_entry_for_sample(sample);
       // Chunk number for our sample
       let chunk = desc.first_chunk + (((sample - 1) - (desc.first_sample - 1)) / desc.samples_per_chunk);
       // Index of sample inside chunk
       let chunk_sample_idx = (sample - desc.first_sample) % desc.samples_per_chunk;
       // Offset of chunk
-      let chunk_offset = co64.entries[chunk as usize - 1];
+      let chunk_offset = co64.entries.get(chunk as usize - 1).copied()?;
 
       // Offset of sample in chunk
       let mut sample_offset = 0;
