@@ -516,7 +516,8 @@ impl<'a> Cr2Decoder<'a> {
       {
         Some(fw) => {
           let str: String = fw.chars().filter(|c| c.is_ascii_digit() || c == &'.').collect();
-          let v: Vec<u8> = str.split('.').map(|v| v.parse().expect("Only digits here")).collect();
+          let v: Vec<u8> = str.split('.').filter_map(|v| v.parse().ok()).collect();
+          if v.is_empty() { return Ok(None); }
           Some(v.iter().rev().enumerate().map(|(i, v)| 10_u32.pow(i as u32 * 3) * *v as u32).sum())
         }
         None => None,
